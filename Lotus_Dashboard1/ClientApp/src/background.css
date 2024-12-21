@@ -1,0 +1,17 @@
+﻿.back {
+    background-image: url(../src/Images/bg2.jpg);
+    height: 100vh;
+    max-width: 100%;
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    /*background-size: 100% 100%;*/
+}
+
+.parent:after {
+    z-index: -1;
+    background-color: rgb(20,20,20);
+    opacity: 0.5;
+}
+

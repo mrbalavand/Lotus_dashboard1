@@ -1,0 +1,15 @@
+﻿
+#leftdash {
+    background-image: url("../../public/142.png");
+    font-size: 16px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+
+#rightdash {
+    background-image: url("../../public/142.png");
+    font-size: 16px;
+    background-repeat: repeat-x;
+    background-position: center;
+}
