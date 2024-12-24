@@ -11,11 +11,22 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Caching.Memory;
+using Lotus_Dashboard1.Apis.GoldEtemadContext;
+using Lotus_Dashboard1.Apis.GoldEtemadServices;
 //using Microsoft.AspNetCore.Authentication.Certificate;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("Lotus_Dashboard1ContextConnection"); builder.Services.AddDbContext<Lotus_Dashboard1Context>(options =>
+var connectionString = builder.Configuration.GetConnectionString("Lotus_Dashboard1ContextConnection"); 
+builder.Services.AddDbContext<Lotus_Dashboard1Context>(options =>
     options.UseOracle(connectionString));
+
+
+var connectionStringSqlServer = builder.Configuration.GetConnectionString("LotusContextConnectionSqlServer");
+
+
+builder.Services.AddDbContext<LotusibBIContext>(options =>
+    options.UseSqlServer(connectionStringSqlServer));
+
 
 
 // Add services to the container.

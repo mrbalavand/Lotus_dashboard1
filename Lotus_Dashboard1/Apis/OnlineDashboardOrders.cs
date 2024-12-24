@@ -1,7 +1,9 @@
 ﻿using DataModels;
+using Lotus_Dashboard1.Apis.GoldEtemadContext;
 using Lotus_Dashboard1.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using System.Globalization;
@@ -13,8 +15,12 @@ namespace Lotus_Dashboard1.Apis
     [ApiController]
     public class OnlineDashboardOrdersController : ControllerBase
     {
-
-        public async Task<JsonResult> GetData(string fundname,string cdate)
+        private readonly LotusibBIContext _lotusibBIContext;
+        public OnlineDashboardOrdersController(LotusibBIContext lotusibBIContext)
+        {
+            _lotusibBIContext = lotusibBIContext;
+        }
+        public async Task<JsonResult> GetData(string fundname, string cdate)
         {
             OnlineDashboardOrdersViewModel onlinedata = new OnlineDashboardOrdersViewModel();
 
@@ -78,6 +84,17 @@ namespace Lotus_Dashboard1.Apis
                 cdate = sodoordate1.PersianToEnglish();
                 cdate = sodoordate1.convertdate();
 
+            }
+
+            else if (fundname == "صندوق طلا" || fundname == "صندوق اعتماد")
+            {
+                FindDate findDate = new FindDate();
+                PersianCalendar PC = new PersianCalendar();
+                api_date = await findDate.find_api_date_lotus();
+                var cdate1 = Convert.ToDateTime(cdate);
+                var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
+                cdate = sodoordate1.PersianToEnglish();
+                cdate = sodoordate1.convertdate();
             }
 
 
@@ -1094,6 +1111,83 @@ namespace Lotus_Dashboard1.Apis
                     await OR.CloseAsync();
                     await OC.DisposeAsync();
                 }
+
+
+
+
+                if ((fundname == "صندوق طلا" || fundname == "صندوق اعتماد") && cdate != null)
+                {
+                    if (fundname == "صندوق طلا")
+
+                    {
+                        fundname = "11509";
+
+                    }
+
+                    else if (fundname == "صندوق اعتماد")
+
+                    {
+                        fundname = "11315";
+                    }
+
+
+
+                    var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
+
+                                       where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+
+                                           FundUnit = goldetemad.Amount,
+
+
+                                       }).ToListAsync();
+
+
+
+                    var data2 = await (from goldetemad in _lotusibBIContext.RevokeQueues
+
+                                       where goldetemad.OrderDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+
+                                           FundUnit = goldetemad.FundUnit,
+
+
+                                       }).ToListAsync();
+
+                    var sumunithaghighiS = (data1.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
+                    var sumunithoghooghiS = (data1.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+                    var sumamounthaghighiS = (data1.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
+                    var sumamounthoghooghiS = (data1.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+
+
+
+                    var sumunithaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
+                    var sumunithoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+                    var sumamounthaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
+                    var sumamounthoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+
+
+                    onlinedata.sodooramountha = sumamounthaghighiS;
+                    onlinedata.sodooramountho = sumamounthoghooghiS;
+                    onlinedata.ebtalamountha =Convert.ToInt64(sumunithaghighiE*100000);
+                    onlinedata.ebtalamountho = Convert.ToInt64(sumamounthoghooghiE*100000);
+                    onlinedata.sodoorunitha = sumunithaghighiS;
+                    onlinedata.sodoorunitho = sumunithoghooghiS;
+                    onlinedata.ebtalunitha = Convert.ToInt64(sumunithaghighiE*100000);
+
+
+
+
+
+
+
+
+                    return new JsonResult(onlinedata);
+                }
             }
 
             else if (Convert.ToInt32(cdate.datetonumber()) <= Convert.ToInt32(api_date.datetonumber()))
@@ -2056,9 +2150,84 @@ namespace Lotus_Dashboard1.Apis
                     await OC.DisposeAsync();
                 }
 
+
+                if ((fundname == "صندوق طلا" || fundname == "صندوق اعتماد") && cdate != null)
+                {
+                    if (fundname == "صندوق طلا")
+
+                    {
+                        fundname = "11509";
+
+                    }
+
+                    else if (fundname == "صندوق اعتماد")
+
+                    {
+                        fundname = "11315";
+                    }
+
+
+
+                    var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
+
+                                       where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+
+                                           FundUnit = goldetemad.Amount,
+
+
+                                       }).ToListAsync();
+
+
+
+                    var data2 = await (from goldetemad in _lotusibBIContext.RevokeQueues
+
+                                       where goldetemad.OrderDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+
+                                           FundUnit = goldetemad.FundUnit,
+
+
+                                       }).ToListAsync();
+
+                    var sumunithaghighiS = (data1.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
+                    var sumunithoghooghiS = (data1.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+                    var sumamounthaghighiS = (data1.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
+                    var sumamounthoghooghiS = (data1.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+
+
+
+                    var sumunithaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
+                    var sumunithoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+                    var sumamounthaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
+                    var sumamounthoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+
+
+                    onlinedata.sodooramountha = sumamounthaghighiS;
+                    onlinedata.sodooramountho = sumamounthoghooghiS;
+                    onlinedata.ebtalamountha = Convert.ToInt64(sumunithaghighiE * 100000);
+                    onlinedata.ebtalamountho = Convert.ToInt64(sumamounthoghooghiE * 100000);
+                    onlinedata.sodoorunitha = sumunithaghighiS;
+                    onlinedata.sodoorunitho = sumunithoghooghiS;
+                    onlinedata.ebtalunitha = Convert.ToInt64(sumunithaghighiE * 100000);
+
+
+
+
+
+
+
+
+                    return new JsonResult(onlinedata);
+                }
+
             }
 
-            
+
 
             return new JsonResult(onlinedata);
         }

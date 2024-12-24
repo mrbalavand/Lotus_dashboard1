@@ -83,6 +83,18 @@ namespace Lotus_Dashboard1.Apis
 
             }
 
+
+            else if (fundname == "صندوق طلا" || fundname == "صندوق اعتماد")
+            {
+                FindDate findDate = new FindDate();
+                PersianCalendar PC = new PersianCalendar();
+                api_date = await findDate.find_api_date_lotus();
+                var cdate1 = Convert.ToDateTime(cdate);
+                var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
+                cdate = sodoordate1.PersianToEnglish();
+                cdate = sodoordate1.convertdate();
+            }
+
             if (Convert.ToInt32(cdate.datetonumber()) > Convert.ToInt32(api_date.datetonumber()))
             {
                 if (fundname == "صندوق لوتوس" && cdate != null)

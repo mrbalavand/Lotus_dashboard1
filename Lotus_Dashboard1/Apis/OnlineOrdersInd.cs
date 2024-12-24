@@ -1,7 +1,9 @@
 ﻿using DataModels;
+using Lotus_Dashboard1.Apis.GoldEtemadContext;
 using Lotus_Dashboard1.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using System.Diagnostics.Metrics;
@@ -13,7 +15,11 @@ namespace Lotus_Dashboard1.Apis
     [ApiController]
     public class OnlineOrdersInd : ControllerBase
     {
-
+        private readonly LotusibBIContext _lotusibBIContext;
+        public OnlineOrdersInd(LotusibBIContext lotusibBIContext)
+        {
+            _lotusibBIContext = lotusibBIContext;
+        }
 
         public async Task<JsonResult> GetData(string fundname, string cdate)
         {
@@ -78,6 +84,17 @@ namespace Lotus_Dashboard1.Apis
                 cdate = sodoordate1.PersianToEnglish();
                 cdate = sodoordate1.convertdate();
 
+            }
+
+            else if (fundname == "صندوق طلا" || fundname == "صندوق اعتماد")
+            {
+                FindDate findDate = new FindDate();
+                PersianCalendar PC = new PersianCalendar();
+                api_date = await findDate.find_api_date_lotus();
+                var cdate1 = Convert.ToDateTime(cdate);
+                var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
+                cdate = sodoordate1.PersianToEnglish();
+                cdate = sodoordate1.convertdate();
             }
 
             if (Convert.ToInt32(cdate.datetonumber()) > Convert.ToInt32(api_date.datetonumber()))
@@ -707,6 +724,109 @@ namespace Lotus_Dashboard1.Apis
 
 
 
+                }
+
+
+
+                if ((fundname == "صندوق طلا" || fundname == "صندوق اعتماد") && cdate != null)
+                {
+                    if (fundname == "صندوق طلا")
+
+                    {
+                        fundname = "11509";
+
+                    }
+
+                    else if (fundname == "صندوق اعتماد")
+
+                    {
+                        fundname = "11315";
+                    }
+                    int nav = 0;
+
+                    string query = "select C##MAIN.LATEST_NAV_INFO.PURCHASENAV1 from C##MAIN.LATEST_NAV_INFO where C##MAIN.LATEST_NAV_INFO.BOURCECODE1=:id";
+
+                    Connection_Lotus1 CS = new Connection_Lotus1();
+                    OracleConnection OR = new OracleConnection(CS.CS1());
+                    OracleCommand OC = OR.CreateCommand();
+                    OracleParameter id1 = new OracleParameter("id", fundname);
+
+                    OC.Parameters.Add(id1);
+
+
+                    await OR.OpenAsync();
+                    OC.BindByName = true;
+                    OC.CommandText = query;
+
+                    DbDataReader reader = await OC.ExecuteReaderAsync();
+                    int i = 0;
+                    while (await reader.ReadAsync())
+                    {
+
+
+
+                        nav = await reader.IsDBNullAsync(0) ? 0 : Convert.ToInt32(reader.GetString(0));
+                    }
+
+
+
+                    var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
+
+                                       where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+
+                                           FundUnit = goldetemad.Amount,
+
+
+                                       }).ToListAsync();
+
+
+
+                    var data2 = await (from goldetemad in _lotusibBIContext.RevokeQueues
+
+                                       where goldetemad.OrderDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+
+                                           FundUnit = goldetemad.FundUnit,
+
+
+                                       }).ToListAsync();
+
+
+                    var sodooramounthan = (data1.Where(x => x.NationalCode.Length <= 10).Count());
+                    var sodooramounthon = (data1.Where(x => x.NationalCode.Length > 10).Count());
+                    var sodooramounthanu = (data1.Where(x => x.NationalCode.Length <= 10).Distinct().Count());
+                    var sodooramounthonu = (data1.Where(x => x.NationalCode.Length > 10).Distinct().Count());
+
+
+
+                    var ebtalamounthan = (data2.Where(x => x.NationalCode.Length <= 10).Count());
+                    var ebtalamounthon = (data2.Where(x => x.NationalCode.Length > 10).Count());
+                    var ebtalamounthanu = (data2.Where(x => x.NationalCode.Length <= 10).Distinct().Count());
+                    var ebtalamounthonu = (data2.Where(x => x.NationalCode.Length > 10).Distinct().Count());
+
+
+                    onlinedata.sodooramounthan = sodooramounthan;
+                    onlinedata.sodooramounthon = sodooramounthon;
+                    onlinedata.ebtalamounthanu = sodooramounthanu;
+                    onlinedata.ebtalamounthonu = sodooramounthonu;
+
+
+
+
+                    onlinedata.ebtalamounthan = ebtalamounthan;
+                    onlinedata.ebtalamounthon = ebtalamounthon;
+                    onlinedata.ebtalamounthanu = ebtalamounthanu;
+                    onlinedata.ebtalamounthonu = ebtalamounthonu;
+
+
+
+
+                    return new JsonResult(onlinedata);
                 }
 
             }
@@ -1650,6 +1770,111 @@ namespace Lotus_Dashboard1.Apis
 
 
                 }
+
+
+
+                if ((fundname == "صندوق طلا" || fundname == "صندوق اعتماد") && cdate != null)
+                {
+                    if (fundname == "صندوق طلا")
+
+                    {
+                        fundname = "11509";
+
+                    }
+
+                    else if (fundname == "صندوق اعتماد")
+
+                    {
+                        fundname = "11315";
+                    }
+                    int nav = 0;
+
+                    string query = "select C##MAIN.LATEST_NAV_INFO.PURCHASENAV1 from C##MAIN.LATEST_NAV_INFO where C##MAIN.LATEST_NAV_INFO.BOURCECODE1=:id";
+
+                    Connection_Lotus1 CS = new Connection_Lotus1();
+                    OracleConnection OR = new OracleConnection(CS.CS1());
+                    OracleCommand OC = OR.CreateCommand();
+                    OracleParameter id1 = new OracleParameter("id", fundname);
+
+                    OC.Parameters.Add(id1);
+
+
+                    await OR.OpenAsync();
+                    OC.BindByName = true;
+                    OC.CommandText = query;
+
+                    DbDataReader reader = await OC.ExecuteReaderAsync();
+                    int i = 0;
+                    while (await reader.ReadAsync())
+                    {
+
+
+
+                        nav = await reader.IsDBNullAsync(0) ? 0 : Convert.ToInt32(reader.GetString(0));
+                    }
+
+
+
+                    var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
+
+                                       where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+
+                                           FundUnit = goldetemad.Amount,
+
+
+                                       }).ToListAsync();
+
+
+
+                    var data2 = await (from goldetemad in _lotusibBIContext.RevokeQueues
+
+                                       where goldetemad.OrderDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+
+                                           FundUnit = goldetemad.FundUnit,
+
+
+                                       }).ToListAsync();
+
+
+                    var sodooramounthan = (data1.Where(x => x.NationalCode.Length <= 10).Count());
+                    var sodooramounthon = (data1.Where(x => x.NationalCode.Length > 10).Count());
+                    var sodooramounthanu = (data1.Where(x => x.NationalCode.Length <= 10).Distinct().Count());
+                    var sodooramounthonu = (data1.Where(x => x.NationalCode.Length > 10).Distinct().Count());
+
+
+
+                    var ebtalamounthan = (data2.Where(x => x.NationalCode.Length <= 10).Count());
+                    var ebtalamounthon = (data2.Where(x => x.NationalCode.Length > 10).Count());
+                    var ebtalamounthanu = (data2.Where(x => x.NationalCode.Length <= 10).Distinct().Count());
+                    var ebtalamounthonu = (data2.Where(x => x.NationalCode.Length > 10).Distinct().Count());
+
+
+                    onlinedata.sodooramounthan = sodooramounthan;
+                    onlinedata.sodooramounthon = sodooramounthon;
+                    onlinedata.ebtalamounthanu = sodooramounthanu;
+                    onlinedata.ebtalamounthonu = sodooramounthonu;
+
+
+
+
+                    onlinedata.ebtalamounthan = ebtalamounthan;
+                    onlinedata.ebtalamounthon = ebtalamounthon;
+                    onlinedata.ebtalamounthanu = ebtalamounthanu;
+                    onlinedata.ebtalamounthonu = ebtalamounthonu;
+
+
+
+
+                    return new JsonResult(onlinedata);
+                }
+
+
             }
 
 

@@ -1,0 +1,1 @@
+﻿Scaffold-DbContext "Data Source=192.168.1.131;Initial Catalog=LotusibBI;User ID=balavand;Password=123456;Encrypt=False;Trust Server Certificate=True" Microsoft.EntityFrameworkCore.SqlServer -table [Gold_Etemad],[Revoke_Queue],[T_CUSTOMER] -OutputDir Apis\GoldEtemadContext -force

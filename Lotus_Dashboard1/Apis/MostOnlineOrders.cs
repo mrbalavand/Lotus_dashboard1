@@ -1,11 +1,14 @@
 ﻿using DataModels;
+using Lotus_Dashboard1.Apis.GoldEtemadContext;
 using Lotus_Dashboard1.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Lotus_Dashboard1.Apis
@@ -14,20 +17,29 @@ namespace Lotus_Dashboard1.Apis
     [ApiController]
     public class MostOnlineOrders : ControllerBase
     {
+
+        private readonly LotusibBIContext _lotusibBIContext;
+        public MostOnlineOrders(LotusibBIContext lotusibBIContext)
+        {
+            _lotusibBIContext = lotusibBIContext;
+        }
         public async Task<JsonResult> GetData(string fundname, string cdate)
         {
 
-            PersianCalendar PC=new PersianCalendar();
+            PersianCalendar PC = new PersianCalendar();
 
             List<MostOnlineOrdersModel> data = new List<MostOnlineOrdersModel>();
-
+            List<MostOnlineOrdersModel> data10 = new List<MostOnlineOrdersModel>();
+            List<MostOnlineOrdersModel> data20 = new List<MostOnlineOrdersModel>();
+            List<MostOnlineOrdersModel> data30 = new List<MostOnlineOrdersModel>();
+            List<MostOnlineOrdersModel> data40 = new List<MostOnlineOrdersModel>();
 
             string api_date = "";
 
-            if (fundname=="صندوق لوتوس")
+            if (fundname == "صندوق لوتوس")
             {
                 FindDate findDate = new FindDate();
-                
+
                 api_date = await findDate.find_api_date_lotus();
                 var cdate1 = Convert.ToDateTime(cdate);
                 var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
@@ -39,7 +51,7 @@ namespace Lotus_Dashboard1.Apis
             {
 
                 FindDate findDate = new FindDate();
-                
+
                 api_date = await findDate.find_api_date_piroozan();
                 var cdate1 = Convert.ToDateTime(cdate);
                 var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
@@ -50,7 +62,7 @@ namespace Lotus_Dashboard1.Apis
             else if (fundname == "صندوق زرین")
             {
                 FindDate findDate = new FindDate();
-                
+
                 api_date = await findDate.find_api_date_zarrin();
                 var cdate1 = Convert.ToDateTime(cdate);
                 var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
@@ -62,7 +74,7 @@ namespace Lotus_Dashboard1.Apis
             else if (fundname == "صندوق رویان")
             {
                 FindDate findDate = new FindDate();
-                
+
                 api_date = await findDate.find_api_date_royan();
                 var cdate1 = Convert.ToDateTime(cdate);
                 var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
@@ -74,7 +86,7 @@ namespace Lotus_Dashboard1.Apis
             else if (fundname == "صندوق الزهرا")
             {
                 FindDate findDate = new FindDate();
-                
+
                 api_date = await findDate.find_api_date_alzahra();
                 var cdate1 = Convert.ToDateTime(cdate);
                 var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
@@ -83,11 +95,29 @@ namespace Lotus_Dashboard1.Apis
 
             }
 
-           
+
+            if (fundname == "صندوق طلا" || fundname == "صندوق اعتماد")
+            {
+                FindDate findDate = new FindDate();
+
+                api_date = await findDate.find_api_date_lotus();
+                var cdate1 = Convert.ToDateTime(cdate);
+                var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
+                cdate = sodoordate1.PersianToEnglish();
+                cdate = sodoordate1.convertdate();
+            }
+
+
+
+
+
+
+
+
 
             if (Convert.ToInt32(cdate.datetonumber()) > Convert.ToInt32(api_date.datetonumber()))
             {
-                if (fundname == "صندوق لوتوس" && cdate!=null)
+                if (fundname == "صندوق لوتوس" && cdate != null)
                 {
 
 
@@ -122,7 +152,7 @@ namespace Lotus_Dashboard1.Apis
 
                     var sodoordate = cdate;
 
-                    
+
 
                     Connection_Lotus1 CS = new Connection_Lotus1();
                     OracleConnection OR = new OracleConnection(CS.CS1());
@@ -448,6 +478,116 @@ namespace Lotus_Dashboard1.Apis
                     await OC.DisposeAsync();
                     return new JsonResult(data);
                 }
+
+
+
+
+
+
+
+
+                if ((fundname == "صندوق طلا" || fundname == "صندوق اعتماد") && cdate != null)
+                {
+                    if (fundname == "صندوق طلا")
+
+                    {
+                        fundname = "11509";
+
+                    }
+
+                    else if (fundname == "صندوق اعتماد")
+
+                    {
+                        fundname = "11315";
+
+                    }
+
+
+                    var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
+                                       join tcustomer in _lotusibBIContext.TCustomers
+                                       on goldetemad.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
+                                       from j in jointable.DefaultIfEmpty()
+                                       where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+                                           CustomerName = j.IsCompany == 0 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                                           FundUnit = goldetemad.Amount,
+                                           CustomerType = j.IsCompany == 0 ? ("حقیقی") : ("حقوقی"),
+                                           OrderType = "صدور",
+                                       }).ToListAsync();
+
+
+                    foreach (var model in data1)
+                    {
+                        data10.Add(new MostOnlineOrdersModel()
+                        {
+
+                            NationalCode = model.NationalCode,
+                            CustomerName = model.CustomerName,
+                            FundUnit = model.FundUnit / 10,
+                            CustomerType = model.CustomerType,
+                            OrderType = model.OrderType,
+
+                        });
+
+                    }
+                    data30.AddRange(data10.OrderByDescending(x => x.FundUnit).Take(50));
+
+
+
+
+                    var data2 = await (from RevokeQueue in _lotusibBIContext.RevokeQueues
+                                       join tcustomer in _lotusibBIContext.TCustomers
+                                       on RevokeQueue.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
+                                       from j in jointable.DefaultIfEmpty()
+                                       where RevokeQueue.OrderDate == cdate && RevokeQueue.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = RevokeQueue.NationalCode,
+                                           CustomerName = j.IsCompany == 0 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                                           FundUnit = RevokeQueue.FundUnit * 100000,
+                                           CustomerType = j.IsCompany == 0 ? ("حقیقی") : ("حقوقی"),
+                                           OrderType = "ابطال",
+                                       }).ToListAsync();
+
+
+
+
+                    foreach (var model in data2)
+                    {
+                        data20.Add(new MostOnlineOrdersModel()
+                        {
+
+                            NationalCode = model.NationalCode,
+                            CustomerName = model.CustomerName,
+                            FundUnit = Convert.ToInt64(model.FundUnit / 10),
+                            CustomerType = model.CustomerType,
+                            OrderType = model.OrderType,
+
+                        });
+
+                        
+
+                    }
+
+                    data40.AddRange(data20.OrderByDescending(x => x.FundUnit).Take(50));
+
+                    
+
+                    
+
+
+                    data30.AddRange(data40);
+
+
+
+                    return new JsonResult(data30);
+                }
+
+
+
+
             }
 
             else if (Convert.ToInt32(cdate.datetonumber()) <= Convert.ToInt32(api_date.datetonumber()))
@@ -455,29 +595,29 @@ namespace Lotus_Dashboard1.Apis
 
                 if (fundname == "صندوق لوتوس" && cdate != null)
                 {
-                    
 
 
-                    string query = " (select C##MAIN.PBF2_FUND_ORDER.national_code,"+
-                                    " case when(select C##MAIN.t_customer.is_company from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1)=0"+
-                                    " then(select C##MAIN.t_customer.first_name || ' ' ||  C##MAIN.t_customer.last_name from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1)"+
-                                    " else (select C##MAIN.t_customer.company_name from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1) end as customername,"+ 
-                                    " ROUND(C##MAIN.PBF2_FUND_ORDER.ORDER_AMOUNT/10) as fundunit,"+
-                                    " case when LENGTH(C##MAIN.PBF2_FUND_ORDER.national_code)>10 then 'حقوقی' else 'حقیقی' end as customertype,'صدور' as IS_PURCHASE" + 
-                                    " from C##MAIN.PBF2_FUND_ORDER"+ 
-                                    " where C##MAIN.PBF2_FUND_ORDER.ORDER_DATE>=:id and C##MAIN.PBF2_FUND_ORDER.ORDER_DATE<=:id"+
-                                    " and C##MAIN.PBF2_FUND_ORDER.IS_PURCHASE=1 and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2 order by C##MAIN.PBF2_FUND_ORDER.ORDER_AMOUNT DESC" +  
-                                    " OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY)"+ 
-                                    " union all"+
-                                    " (select C##MAIN.PBF2_FUND_ORDER.national_code,"+
-                                    " case when (select C##MAIN.t_customer.is_company from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1)=0"+ 
-                                    " then (select C##MAIN.t_customer.first_name || ' ' ||  C##MAIN.t_customer.last_name from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1)"+
-                                    " else (select C##MAIN.t_customer.company_name from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1) end as customername,"+
-                                    " C##MAIN.PBF2_FUND_ORDER.FUND_UNIT*100000 as fundunit,"+
+
+                    string query = " (select C##MAIN.PBF2_FUND_ORDER.national_code," +
+                                    " case when(select C##MAIN.t_customer.is_company from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1)=0" +
+                                    " then(select C##MAIN.t_customer.first_name || ' ' ||  C##MAIN.t_customer.last_name from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1)" +
+                                    " else (select C##MAIN.t_customer.company_name from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1) end as customername," +
+                                    " ROUND(C##MAIN.PBF2_FUND_ORDER.ORDER_AMOUNT/10) as fundunit," +
+                                    " case when LENGTH(C##MAIN.PBF2_FUND_ORDER.national_code)>10 then 'حقوقی' else 'حقیقی' end as customertype,'صدور' as IS_PURCHASE" +
+                                    " from C##MAIN.PBF2_FUND_ORDER" +
+                                    " where C##MAIN.PBF2_FUND_ORDER.ORDER_DATE>=:id and C##MAIN.PBF2_FUND_ORDER.ORDER_DATE<=:id" +
+                                    " and C##MAIN.PBF2_FUND_ORDER.IS_PURCHASE=1 and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2 order by C##MAIN.PBF2_FUND_ORDER.ORDER_AMOUNT DESC" +
+                                    " OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY)" +
+                                    " union all" +
+                                    " (select C##MAIN.PBF2_FUND_ORDER.national_code," +
+                                    " case when (select C##MAIN.t_customer.is_company from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1)=0" +
+                                    " then (select C##MAIN.t_customer.first_name || ' ' ||  C##MAIN.t_customer.last_name from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1)" +
+                                    " else (select C##MAIN.t_customer.company_name from C##MAIN.t_customer where C##MAIN.t_customer.national_code=C##MAIN.PBF2_FUND_ORDER.national_code and rownum=1) end as customername," +
+                                    " C##MAIN.PBF2_FUND_ORDER.FUND_UNIT*100000 as fundunit," +
                                     " case when LENGTH(C##MAIN.PBF2_FUND_ORDER.national_code)>10 then 'حقوقی' else 'حقیقی' end as customertype,'ابطال' as IS_PURCHASE " +
-                                    " from C##MAIN.PBF2_FUND_ORDER"+ 
-                                    " where C##MAIN.PBF2_FUND_ORDER.ORDER_DATE>=:id and C##MAIN.PBF2_FUND_ORDER.ORDER_DATE<=:id"+
-                                    " and C##MAIN.PBF2_FUND_ORDER.IS_PURCHASE=0 and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2 order by C##MAIN.PBF2_FUND_ORDER.FUND_UNIT DESC" +  
+                                    " from C##MAIN.PBF2_FUND_ORDER" +
+                                    " where C##MAIN.PBF2_FUND_ORDER.ORDER_DATE>=:id and C##MAIN.PBF2_FUND_ORDER.ORDER_DATE<=:id" +
+                                    " and C##MAIN.PBF2_FUND_ORDER.IS_PURCHASE=0 and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2 order by C##MAIN.PBF2_FUND_ORDER.FUND_UNIT DESC" +
                                     " OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY) ";
 
 
@@ -486,7 +626,7 @@ namespace Lotus_Dashboard1.Apis
 
                     var sodoordate = cdate;
 
-                  
+
 
 
                     Connection_Lotus1 CS = new Connection_Lotus1();
@@ -559,8 +699,8 @@ namespace Lotus_Dashboard1.Apis
 
                     var sodoordate = cdate;
 
-                    
-                  
+
+
 
                     Connection_Lotus1 CS = new Connection_Lotus1();
                     OracleConnection OR = new OracleConnection(CS.CS1());
@@ -632,7 +772,7 @@ namespace Lotus_Dashboard1.Apis
 
                     var sodoordate = cdate;
 
-                   
+
 
 
                     Connection_Lotus1 CS = new Connection_Lotus1();
@@ -807,6 +947,93 @@ namespace Lotus_Dashboard1.Apis
                     await OR.CloseAsync();
                     await OC.DisposeAsync();
                     return new JsonResult(data);
+                }
+
+
+
+                if ((fundname == "صندوق طلا" || fundname == "صندوق اعتماد") && cdate != null)
+                {
+                    if (fundname == "صندوق طلا")
+
+                    {
+                        fundname = "11509";
+
+                    }
+
+                    else if (fundname == "صندوق اعتماد")
+
+                    {
+                        fundname = "11315";
+
+                    }
+
+
+                    var cdate1 = Convert.ToDateTime(cdate);
+                    var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
+                    cdate = sodoordate1.PersianToEnglish();
+                    cdate = sodoordate1.convertdate();
+                    var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
+                                       join tcustomer in _lotusibBIContext.TCustomers
+                                       on goldetemad.NationalCode equals tcustomer.NationalCode into jointable
+                                       from j in jointable.DefaultIfEmpty()
+                                       where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = goldetemad.NationalCode,
+                                           CustomerName = j.IsCompany == 0 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                                           FundUnit = goldetemad.Amount,
+                                           CustomerType = j.IsCompany == 0 ? ("حقیقی") : ("حقوقی"),
+                                           OrderType = "صدور",
+                                       }).ToListAsync();
+
+
+
+                    var data2 = await (from RevokeQueue in _lotusibBIContext.RevokeQueues
+                                       join tcustomer in _lotusibBIContext.TCustomers
+                                       on RevokeQueue.NationalCode equals tcustomer.NationalCode into jointable
+                                       from j in jointable.DefaultIfEmpty()
+                                       where RevokeQueue.OrderDate == cdate && RevokeQueue.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = RevokeQueue.NationalCode,
+                                           CustomerName = j.IsCompany == 0 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                                           FundUnit = RevokeQueue.FundUnit * 100000,
+                                           CustomerType = j.IsCompany == 0 ? ("حقیقی") : ("حقوقی"),
+                                           OrderType = "ابطال",
+                                       }).ToListAsync();
+
+
+                    foreach (var model in data1)
+                    {
+                        data.Add(new MostOnlineOrdersModel()
+                        {
+
+                            NationalCode = model.NationalCode,
+                            CustomerName = model.CustomerName,
+                            FundUnit = model.FundUnit / 10,
+                            CustomerType = model.CustomerType,
+                            OrderType = model.OrderType,
+
+                        });
+
+                    }
+
+                    foreach (var model in data2)
+                    {
+                        data.Add(new MostOnlineOrdersModel()
+                        {
+
+                            NationalCode = model.NationalCode,
+                            CustomerName = model.CustomerName,
+                            FundUnit = Convert.ToInt64(model.FundUnit / 10),
+                            CustomerType = model.CustomerType,
+                            OrderType = model.OrderType,
+
+                        });
+
+                    }
+
+                    return new JsonResult(data.OrderByDescending(x => x.FundUnit).Take(50));
                 }
 
 

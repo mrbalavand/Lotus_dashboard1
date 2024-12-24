@@ -17,14 +17,14 @@ import { CountTime } from './components/CountTime';
 
 
 import { Maxunitmodal } from './components/Maxunitmodal';
-import { store } from './Redux_Toolkit/store';
+import { store } from './ReduxApp/store.js';
 import { Provider } from 'react-redux';
 
 
 export default function App() {
 
-    //const [setting1value, setSetting1value] = useState({ url: "https://localhost:7037/", fundname: "" });
-    const [setting1value, setSetting1value] = useState({ url: "" });
+    const [setting1value, setSetting1value] = useState({ url: "https://localhost:7037/", fundname: "" });
+    /*const [setting1value, setSetting1value] = useState({ url: "" });*/
 
     return (
 

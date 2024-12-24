@@ -35,7 +35,7 @@ import { Pie, PieChart, Cell } from 'recharts';
 import { CountTime } from './CountTime';
 
 import { useSelector, useDispatch } from 'react-redux';
-import decrease from '../Redux/Countersec/CountsecAction';
+import { GoldEtemadSlice } from '../ReduxApp/Gold_Etemad_Slice.js';
 import { Datepicker as Datepicker1 } from '@ijavad805/react-datepicker';
 import { Maxunitmodal } from "./Maxunitmodal";
 
@@ -78,10 +78,11 @@ let maxnavdate = false;
 
 
 export function Onlinedashboard() {
+    const dispatch = useDispatch();
+    const Gold_Etemad = useSelector(state => state.Gold_Etemad);
 
 
-    //const countsec = useSelector(state => state.countsec);
-    //const dispatch = useDispatch();
+    console.log(Gold_Etemad)
 
     let tokendata = [{ token1: "" }];
     let [sodoor, setsodoor] = useState([]);
@@ -130,7 +131,7 @@ export function Onlinedashboard() {
     let branchesval1 = false;
     let mobileval = false;
 
-    let accessuser = ["آقای جمال الدین نیک اندیش", "آقای هادی روزگار", "علیرضا بالاوند", "ceo","خانم مریم خوشدل"]
+    let accessuser = ["آقای جمال الدین نیک اندیش", "آقای هادی روزگار", "علیرضا بالاوند", "ceo", "خانم مریم خوشدل"]
     //useEffect(() => {
 
     //    /* setfund("صندوق لوتوس")*/
@@ -238,7 +239,7 @@ export function Onlinedashboard() {
 
 
 
-    
+
 
     function setfund(e, cdate) {
 
@@ -281,6 +282,7 @@ export function Onlinedashboard() {
             getfundcapital(e, cdate);
             
 
+
         }
 
 
@@ -302,7 +304,7 @@ export function Onlinedashboard() {
 
             branchesval = true;
             setbranch(branches.data);
-            
+
 
         }
 
@@ -311,7 +313,7 @@ export function Onlinedashboard() {
             setbranch("");
 
         }
-       
+
 
 
     };
@@ -364,7 +366,7 @@ export function Onlinedashboard() {
             mobileval = false;
             setmobile("");
         }
-        
+
     };
 
 
@@ -387,7 +389,7 @@ export function Onlinedashboard() {
                 setfunddata(costs.data);
             }
 
-            
+
 
 
         } catch (e) {
@@ -411,10 +413,10 @@ export function Onlinedashboard() {
 
                 onlineordercheck = true;
                 setonlineorders(costs1.data);
-                                                
+
             }
 
-            
+
         } catch (e) {
             onlineordercheck = false;
             setonlineorders("مشکل ارتباط با سرور");
@@ -433,17 +435,17 @@ export function Onlinedashboard() {
         setonlinedata("");
         try {
             sodoordash = false;
-            
+
             const chartdata5 = await axios.get(myContext.url + `api/OnlineOrder?fundname=${e}&cdate=${cdate}`);
-            
+
             if (chartdata5.data) {
                 sodoordash = true;
                 setonlinedata(chartdata5.data);
             }
 
-            
 
-            
+
+
 
 
         } catch (e) {
@@ -464,7 +466,7 @@ export function Onlinedashboard() {
 
 
 
-        const chartdata4 =await axios.post(myContext.url + 'api/CheckLogin', Token, {headers: {'Content-Type': 'application/json','Authorization': 'Bearer ' + Token}}).then((item) => {
+        const chartdata4 = await axios.post(myContext.url + 'api/CheckLogin', Token, { headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + Token } }).then((item) => {
             checkloginn = true;
             setchecklogin(() => item.data);
             localStorage.setItem(checklogin, "lotus_dashboard");
@@ -498,12 +500,12 @@ export function Onlinedashboard() {
             }
 
 
-            
+
 
 
         } catch (e) {
 
-           
+
 
             activestate7 = false;
 
@@ -526,14 +528,14 @@ export function Onlinedashboard() {
 
                 setfundcapital(chartdata7.data);
             }
-            
+
         } catch (e) {
             activestate7 = false;
             setfundcapital("");
 
-            
 
-            
+
+
         }
 
 
@@ -543,10 +545,10 @@ export function Onlinedashboard() {
     async function do6(e) {
 
         try {
-            
+
             setonlinedata1("");
             const chartdata6 = await axios.get(myContext.url + `api/OnlineOrder1?fundname=${e}`);
-            
+
             if (chartdata6.data) {
                 activestate6 = true;
 
@@ -559,7 +561,7 @@ export function Onlinedashboard() {
                 setonlinedata1("");
             }
 
-            
+
             /*setpiedata([{ name: "صدور", value: chartdata6.data[0] }, { name: " ابطال", value: chartdata6.data[1] }]);*/
         } catch (e) {
 
@@ -583,14 +585,17 @@ export function Onlinedashboard() {
 
         try {
             scrolltableloading = false;
-            data = await axios.get(`${myContext.url}api/MostOnlineOrders?fundname=${e}&cdate=${cdate}`);
+         
+             data = await axios.get(`${myContext.url}api/MostOnlineOrders?fundname=${e}&cdate=${cdate}`);
+            
+
 
             if (data.data.length > 0) {
                 scrolltableloading = true;
 
                 setmostonline(data.data);
             }
-            
+
         } catch (e) {
 
             scrolltableloading = false;
@@ -629,7 +634,7 @@ export function Onlinedashboard() {
                 setsodoor(chartdata.data);
 
             }
-           
+
         } catch (e) {
 
             activestate = false
@@ -658,7 +663,7 @@ export function Onlinedashboard() {
 
             }
 
-            
+
 
         } catch (e) {
             let Parameters = [{ Name: "startdate", Value: barchartstartdate }, { Name: "enddate", Value: barchartenddate }, { Name: "dsname", Value: fundname }];
@@ -709,7 +714,7 @@ export function Onlinedashboard() {
                 setonlineordershour("");
             }
 
-          
+
         } catch (e) {
 
             activestate5 = true;
@@ -742,7 +747,7 @@ export function Onlinedashboard() {
 
             }
 
-            
+
         } catch (e) {
 
 
@@ -775,7 +780,7 @@ export function Onlinedashboard() {
                 setonlinedatan("");
             }
 
-            
+
         } catch (e) {
 
             onlinedatanloading = true;
@@ -805,9 +810,9 @@ export function Onlinedashboard() {
                 setmaxunit("");
 
             }
-            
-            
-            
+
+
+
 
 
         } catch (e) {
@@ -855,18 +860,18 @@ export function Onlinedashboard() {
     }
 
 
-     function filterbranch(item,type){
+    function filterbranch(item, type) {
 
-         let fish = item.filter(item1 => item1.rectype === type)
+        let fish = item.filter(item1 => item1.rectype === type)
 
-         if (fish.length>0) {
-             return commafy((fish[0].sodoorAmount) / 10)
-         }
-         else {
-             return 0
-         }
-         
-         
+        if (fish.length > 0) {
+            return commafy((fish[0].sodoorAmount) / 10)
+        }
+        else {
+            return 0
+        }
+
+
 
     }
 
@@ -881,7 +886,7 @@ export function Onlinedashboard() {
         else {
             return 0
         }
-        
+
 
     }
 
@@ -896,8 +901,8 @@ export function Onlinedashboard() {
         else {
             return 0
         }
-        
-        
+
+
 
     }
 
@@ -959,8 +964,8 @@ export function Onlinedashboard() {
             setopentable(true)
         }
 
-        
-        
+
+
 
     }
 
@@ -1029,10 +1034,10 @@ export function Onlinedashboard() {
                             <ul className="d-flex navbar-nav me-auto mb-lg-0 justify-content-center align-items-center">
 
                                 <li className="nav-item d-flex justify-content-center align-items-center">
-                                    <img src="./Logo1.png" alt="لوگو"/> &nbsp; &nbsp; تاریخ گزارش گیری: &nbsp;  <span style={{ fontWeight: "bold", color: "black", fontSize: "16px" }}> {onlinedata.today}</span>
+                                    <img src="./Logo1.png" alt="لوگو" /> &nbsp; &nbsp; تاریخ گزارش گیری: &nbsp;  <span style={{ fontWeight: "bold", color: "black", fontSize: "16px" }}> {onlinedata.today}</span>
                                 </li>
 
-                            
+
 
                                 <li className="nav-item ps-5" style={{ fontSize: "14px" }}>
                                     <Dropdown as={ButtonGroup} className="col-md-6 d-inline shadow" width="100px">
@@ -1047,6 +1052,8 @@ export function Onlinedashboard() {
                                             <Dropdown.Item onClick={(e) => { setfund('صندوق زرین', ptime) }}>صندوق زرین</Dropdown.Item>
                                             <Dropdown.Item onClick={(e) => { setfund('صندوق رویان', ptime) }}>صندوق رویان</Dropdown.Item>
                                             <Dropdown.Item onClick={(e) => { setfund('صندوق الزهرا', ptime) }}>صندوق الزهرا</Dropdown.Item>
+                                            <Dropdown.Item onClick={(e) => { setfund('صندوق طلا', ptime) }}>صندوق طلا</Dropdown.Item>
+                                            <Dropdown.Item onClick={(e) => { setfund('صندوق اعتماد', ptime) }}>صندوق اعتماد</Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
 
@@ -1909,7 +1916,7 @@ export function Onlinedashboard() {
 
                                 <div className="justify-content-center text-center" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(200,200,200)", color: "rgb(0,80,50)" }}>گزارش عملکرد شعب بانک پارسیان</div>
 
-                                <div style={{ height: !opentable && opentable1 ? ("30vh") : opentable && !opentable1 ? ("30vh") : opentable && opentable1 ? ("35vh"):("20vh") }}>
+                                <div style={{ height: !opentable && opentable1 ? ("30vh") : opentable && !opentable1 ? ("30vh") : opentable && opentable1 ? ("35vh") : ("20vh") }}>
 
                                     {branchesval === true || branch.length !== 0 ? (
                                         <TableScrollbar>
@@ -1932,9 +1939,9 @@ export function Onlinedashboard() {
 
 
 
-                                                    <tr className="text-dark" style={{ fontSize:"13px" }}>
-                                                        <td className="text-start"><button className="border-0 bg-light text-secondary" value={!opentable ? ("+"): ("-") } onClick={(e) => {showbranches(e.target.value) }}>{!opentable ? ("+"): ("-")}</button>منابع تجهیز شده (اینترنتی) : &nbsp;&nbsp; {filterbranch(branch,"internet")}</td>
-                                                  
+                                                    <tr className="text-dark" style={{ fontSize: "13px" }}>
+                                                        <td className="text-start"><button className="border-0 bg-light text-secondary" value={!opentable ? ("+") : ("-")} onClick={(e) => { showbranches(e.target.value) }}>{!opentable ? ("+") : ("-")}</button>منابع تجهیز شده (اینترنتی) : &nbsp;&nbsp; {filterbranch(branch, "internet")}</td>
+
                                                         <td>{filterbranchcount(branch, "internet")}</td>
                                                         <td>{filterbranchreq(branch, "internet")}</td>
 
@@ -1945,7 +1952,7 @@ export function Onlinedashboard() {
 
 
                                                     {opentable ? (<tr className="text-muted" style={{ fontSize: "13px" }}>
-                                                        
+
                                                         <td className="text-start ps-5"><FontAwesomeIcon icon={faCheckCircle} size="1x" color="rgb(255, 181, 0)" />&nbsp;شعبه اختصاصی لوتوس : &nbsp;&nbsp; {filterbranch(subbranch, "internet-branch")}</td>
 
                                                         <td className="">{filterbranchcount(subbranch, "internet-branch")}</td>
@@ -2005,8 +2012,8 @@ export function Onlinedashboard() {
                                                     }
 
 
-                                                    <tr className="border border-2 border-dark" style={{ backgroundColor: "rgb(137,141,141)" } }>
-                                                        <td><FontAwesomeIcon icon={faCheck} size="0.5x" color="rgb(255, 181, 0)" />&nbsp;&nbsp;جمع کل : &nbsp;&nbsp; {filterbranch(branch,"all")}</td>
+                                                    <tr className="border border-2 border-dark" style={{ backgroundColor: "rgb(137,141,141)" }}>
+                                                        <td><FontAwesomeIcon icon={faCheck} size="0.5x" color="rgb(255, 181, 0)" />&nbsp;&nbsp;جمع کل : &nbsp;&nbsp; {filterbranch(branch, "all")}</td>
                                                         <td>{filterbranchcount(branch, "all")}</td>
                                                         <td>{filterbranchreq(branch, "all")}</td>
 
@@ -2321,7 +2328,7 @@ export function Onlinedashboard() {
 
 
 
-                        
+
 
                     </div>
 

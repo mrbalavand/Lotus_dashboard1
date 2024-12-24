@@ -191,5 +191,79 @@ namespace Lotus_Dashboard1.Apis
 
 
         }
+
+        public async Task<string> find_api_date_tala()
+        {
+
+            string date_array = "";
+
+            string query = "select C##MAIN.LATEST_NAV_INFO.CALCDATE1 from C##MAIN.LATEST_NAV_INFO where C##MAIN.LATEST_NAV_INFO.BOURCECODE1='11509' FETCH FIRST ROWS ONLY";
+
+            //and C##MAIN.API_ZUF_FUND_ORDER.FOSTATUSNAME1='تاييد'
+
+            Connection_Lotus1 CS = new Connection_Lotus1();
+            OracleConnection OR = new OracleConnection(CS.CS1());
+            OracleCommand OC = OR.CreateCommand();
+
+            await OR.OpenAsync();
+            OC.BindByName = true;
+            OC.CommandText = query;
+
+            DbDataReader reader = await OC.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+
+
+
+                date_array = (await reader.IsDBNullAsync(0) ? "0" : reader.GetString(0).numbertodate());
+
+
+            }
+            await OR.CloseAsync();
+            await OC.DisposeAsync();
+
+            return date_array;
+
+
+        }
+
+
+        public async Task<string> find_api_date_etemad()
+        {
+
+            string date_array = "";
+
+            string query = "select C##MAIN.LATEST_NAV_INFO.CALCDATE1 from C##MAIN.LATEST_NAV_INFO where C##MAIN.LATEST_NAV_INFO.BOURCECODE1='11315' FETCH FIRST ROWS ONLY";
+
+
+            //and C##MAIN.API_ZUF_FUND_ORDER.FOSTATUSNAME1='تاييد'
+
+            Connection_Lotus1 CS = new Connection_Lotus1();
+            OracleConnection OR = new OracleConnection(CS.CS1());
+            OracleCommand OC = OR.CreateCommand();
+
+            await OR.OpenAsync();
+            OC.BindByName = true;
+            OC.CommandText = query;
+
+            DbDataReader reader = await OC.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+
+
+
+                date_array = (await reader.IsDBNullAsync(0) ? "0" : reader.GetString(0).numbertodate());
+
+
+            }
+            await OR.CloseAsync();
+            await OC.DisposeAsync();
+
+            return date_array;
+
+
+        }
     }
 }
