@@ -511,9 +511,9 @@ namespace Lotus_Dashboard1.Apis
                                        select new
                                        {
                                            NationalCode = goldetemad.NationalCode,
-                                           CustomerName = j.IsCompany == 0 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                                           CustomerName = goldetemad.NationalCode.Length<=10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
                                            FundUnit = goldetemad.Amount,
-                                           CustomerType = j.IsCompany == 0 ? ("حقیقی") : ("حقوقی"),
+                                           CustomerType = goldetemad.NationalCode.Length<=10 ? ("حقیقی") : ("حقوقی"),
                                            OrderType = "صدور",
                                        }).ToListAsync();
 
@@ -545,9 +545,9 @@ namespace Lotus_Dashboard1.Apis
                                        select new
                                        {
                                            NationalCode = RevokeQueue.NationalCode,
-                                           CustomerName = j.IsCompany == 0 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                                           CustomerName = RevokeQueue.NationalCode.Length<=10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
                                            FundUnit = RevokeQueue.FundUnit * 100000,
-                                           CustomerType = j.IsCompany == 0 ? ("حقیقی") : ("حقوقی"),
+                                           CustomerType = RevokeQueue.NationalCode.Length <= 10 ? ("حقیقی") : ("حقوقی"),
                                            OrderType = "ابطال",
                                        }).ToListAsync();
 
@@ -968,44 +968,24 @@ namespace Lotus_Dashboard1.Apis
                     }
 
 
-                    var cdate1 = Convert.ToDateTime(cdate);
-                    var sodoordate1 = PC.GetYear(cdate1).ToString() + "/" + PC.GetMonth(cdate1).ToString() + "/" + PC.GetDayOfMonth(cdate1).ToString();
-                    cdate = sodoordate1.PersianToEnglish();
-                    cdate = sodoordate1.convertdate();
                     var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
                                        join tcustomer in _lotusibBIContext.TCustomers
-                                       on goldetemad.NationalCode equals tcustomer.NationalCode into jointable
+                                       on goldetemad.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
                                        from j in jointable.DefaultIfEmpty()
                                        where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
                                        select new
                                        {
                                            NationalCode = goldetemad.NationalCode,
-                                           CustomerName = j.IsCompany == 0 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                                           CustomerName = goldetemad.NationalCode.Length <= 10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
                                            FundUnit = goldetemad.Amount,
-                                           CustomerType = j.IsCompany == 0 ? ("حقیقی") : ("حقوقی"),
+                                           CustomerType = goldetemad.NationalCode.Length <= 10 ? ("حقیقی") : ("حقوقی"),
                                            OrderType = "صدور",
-                                       }).ToListAsync();
-
-
-
-                    var data2 = await (from RevokeQueue in _lotusibBIContext.RevokeQueues
-                                       join tcustomer in _lotusibBIContext.TCustomers
-                                       on RevokeQueue.NationalCode equals tcustomer.NationalCode into jointable
-                                       from j in jointable.DefaultIfEmpty()
-                                       where RevokeQueue.OrderDate == cdate && RevokeQueue.DsName == fundname
-                                       select new
-                                       {
-                                           NationalCode = RevokeQueue.NationalCode,
-                                           CustomerName = j.IsCompany == 0 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
-                                           FundUnit = RevokeQueue.FundUnit * 100000,
-                                           CustomerType = j.IsCompany == 0 ? ("حقیقی") : ("حقوقی"),
-                                           OrderType = "ابطال",
                                        }).ToListAsync();
 
 
                     foreach (var model in data1)
                     {
-                        data.Add(new MostOnlineOrdersModel()
+                        data10.Add(new MostOnlineOrdersModel()
                         {
 
                             NationalCode = model.NationalCode,
@@ -1017,10 +997,31 @@ namespace Lotus_Dashboard1.Apis
                         });
 
                     }
+                    data30.AddRange(data10.OrderByDescending(x => x.FundUnit).Take(50));
+
+
+
+
+                    var data2 = await (from RevokeQueue in _lotusibBIContext.RevokeQueues
+                                       join tcustomer in _lotusibBIContext.TCustomers
+                                       on RevokeQueue.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
+                                       from j in jointable.DefaultIfEmpty()
+                                       where RevokeQueue.OrderDate == cdate && RevokeQueue.DsName == fundname
+                                       select new
+                                       {
+                                           NationalCode = RevokeQueue.NationalCode,
+                                           CustomerName = RevokeQueue.NationalCode.Length <= 10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                                           FundUnit = RevokeQueue.FundUnit * 100000,
+                                           CustomerType = RevokeQueue.NationalCode.Length <= 10 ? ("حقیقی") : ("حقوقی"),
+                                           OrderType = "ابطال",
+                                       }).ToListAsync();
+
+
+
 
                     foreach (var model in data2)
                     {
-                        data.Add(new MostOnlineOrdersModel()
+                        data20.Add(new MostOnlineOrdersModel()
                         {
 
                             NationalCode = model.NationalCode,
@@ -1031,9 +1032,22 @@ namespace Lotus_Dashboard1.Apis
 
                         });
 
+
+
                     }
 
-                    return new JsonResult(data.OrderByDescending(x => x.FundUnit).Take(50));
+                    data40.AddRange(data20.OrderByDescending(x => x.FundUnit).Take(50));
+
+
+
+
+
+
+                    data30.AddRange(data40);
+
+
+
+                    return new JsonResult(data30);
                 }
 
 

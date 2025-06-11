@@ -107,7 +107,7 @@ namespace Lotus_Dashboard1.Apis
                         " count(distinct C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1)" +
                         " from C##MAIN.API_PBF2_FUND_ORDER" +
                         " where C##MAIN.API_PBF2_fund_order.creationdate1>=:id and C##MAIN.API_PBF2_fund_order.creationdate1<=:id and C##MAIN.API_PBF2_FUND_ORDER.FOSTATUSNAME1<>'حذف شده'" +
-                        " and C##MAIN.API_PBF2_fund_order.ordertype1='صدور' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1='MBP'" +
+                        " and C##MAIN.API_PBF2_fund_order.ordertype1='صدور' and (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1='MBP' or C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1='mobileBank' or C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1='internetBnak')" +
                         " group by C##MAIN.API_PBF2_FUND_ORDER.creationdate1";
 
 
@@ -180,7 +180,7 @@ namespace Lotus_Dashboard1.Apis
                         " count(distinct C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1)" +
                         " from C##MAIN.API_NNF3_FUND_ORDER" +
                         " where C##MAIN.API_NNF3_fund_order.creationdate1>=:id and C##MAIN.API_NNF3_fund_order.creationdate1<=:id and C##MAIN.API_NNF3_FUND_ORDER.FOSTATUSNAME1<>'حذف شده'" +
-                        " and C##MAIN.API_NNF3_fund_order.ordertype1='صدور' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1='MBP'" +
+                        " and C##MAIN.API_NNF3_fund_order.ordertype1='صدور' and (C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1='MBP' or C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1='mobileBank' or C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1='internetBnak')" +
                         " group by C##MAIN.API_NNF3_FUND_ORDER.creationdate1";
 
 
@@ -262,7 +262,7 @@ namespace Lotus_Dashboard1.Apis
                         " count(distinct C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT) " +
                         " from C##MAIN.PBF2_FUND_ORDER " +
                         " where C##MAIN.PBF2_FUND_ORDER.order_date>=:id and C##MAIN.PBF2_FUND_ORDER.order_date<=:id and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2" +
-                        " and C##MAIN.PBF2_FUND_ORDER.is_purchase=1 and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT is not null" +
+                        " and C##MAIN.PBF2_FUND_ORDER.is_purchase=1 and (C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT ='MBP' or C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT ='internetbnak' or C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT ='mobilebank')" +
                         " and C##MAIN.PBF2_FUND_ORDER.fo_status_id=2" +
                         " group by C##MAIN.PBF2_FUND_ORDER.order_date";
 

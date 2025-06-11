@@ -23,8 +23,8 @@ import { Provider } from 'react-redux';
 
 export default function App() {
 
-    const [setting1value, setSetting1value] = useState({ url: "https://localhost:7037/", fundname: "" });
-    /*const [setting1value, setSetting1value] = useState({ url: "" });*/
+    /*const [setting1value, setSetting1value] = useState({ url: "https://localhost:7037/", fundname: "" });*/
+    const [setting1value, setSetting1value] = useState({ url: "" });
 
     return (
 

@@ -621,7 +621,7 @@ namespace Lotus_Dashboard1.Apis
                      " union all" +
 
 
-                     " select sum(C##MAIN.API_PBF3_FUND_ORDER.FUNDUNIT1*1000000) from C##MAIN.API_PBF3_FUND_ORDER where" +
+                     " select sum(C##MAIN.API_PBF3_FUND_ORDER.FUNDUNIT1*(select C##MAIN.LATEST_NAV_INFO.PURCHASENAV1 from C##MAIN.LATEST_NAV_INFO where C##MAIN.LATEST_NAV_INFO.BOURCECODE1='11285')) from C##MAIN.API_PBF3_FUND_ORDER where" +
                      " C##MAIN.API_PBF3_FUND_ORDER.CREATIONDATE1=:id1 and C##MAIN.API_PBF3_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' and C##MAIN.API_PBF3_FUND_ORDER.ORDERTYPE1='ابطال'" +
 
 
@@ -1054,7 +1054,7 @@ namespace Lotus_Dashboard1.Apis
 
 
 
-                    var sumunithaghighiE = (data2.Sum(x => x.FundUnit));
+                    var sumunithaghighiE = (data2.Sum(x => x.FundUnit)*nav);
                     var sumunithoghooghiE = 0;
                     var sumamounthaghighiE = 0;
                     var sumamounthoghooghiE = 0;
@@ -1062,7 +1062,7 @@ namespace Lotus_Dashboard1.Apis
 
                     onlinedata.sodooramount = sumamounthaghighiS/nav;
                     onlinedata.ebtalamount =Convert.ToInt64( sumunithaghighiE);
-                    onlinedata.ebtalunit = Convert.ToInt64(sumunithaghighiE * 100000);
+                    onlinedata.ebtalunit = Convert.ToInt64(sumunithaghighiE);
                     onlinedata.sodoorunit = sumamounthaghighiS;
                     
 
@@ -1776,7 +1776,7 @@ namespace Lotus_Dashboard1.Apis
 
 
 
-                    var sumunithaghighiE = (data2.Sum(x => x.FundUnit));
+                    var sumunithaghighiE = (data2.Sum(x => x.FundUnit) * nav);
                     var sumunithoghooghiE = 0;
                     var sumamounthaghighiE = 0;
                     var sumamounthoghooghiE = 0;
@@ -1784,7 +1784,7 @@ namespace Lotus_Dashboard1.Apis
 
                     onlinedata.sodooramount = sumamounthaghighiS / nav;
                     onlinedata.ebtalamount = Convert.ToInt64(sumunithaghighiE);
-                    onlinedata.ebtalunit = Convert.ToInt64(sumunithaghighiE * 100000);
+                    onlinedata.ebtalunit = Convert.ToInt64(sumunithaghighiE);
                     onlinedata.sodoorunit = sumamounthaghighiS;
 
 

@@ -1112,9 +1112,6 @@ namespace Lotus_Dashboard1.Apis
                     await OC.DisposeAsync();
                 }
 
-
-
-
                 if ((fundname == "صندوق طلا" || fundname == "صندوق اعتماد") && cdate != null)
                 {
                     if (fundname == "صندوق طلا")
@@ -1129,7 +1126,30 @@ namespace Lotus_Dashboard1.Apis
                     {
                         fundname = "11315";
                     }
+                    Int64 nav = 0;
+                    string query = "select C##MAIN.LATEST_NAV_INFO.PURCHASENAV1 from C##MAIN.LATEST_NAV_INFO where C##MAIN.LATEST_NAV_INFO.BOURCECODE1=:id";
 
+                    Connection_Lotus1 CS = new Connection_Lotus1();
+                    OracleConnection OR = new OracleConnection(CS.CS1());
+                    OracleCommand OC = OR.CreateCommand();
+                    OracleParameter id1 = new OracleParameter("id", fundname);
+
+                    OC.Parameters.Add(id1);
+
+
+                    await OR.OpenAsync();
+                    OC.BindByName = true;
+                    OC.CommandText = query;
+
+                    DbDataReader reader = await OC.ExecuteReaderAsync();
+                    int i = 0;
+                    while (await reader.ReadAsync())
+                    {
+
+
+
+                        nav = await reader.IsDBNullAsync(0) ? 0 : Convert.ToInt32(reader.GetString(0));
+                    }
 
 
                     var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
@@ -1165,24 +1185,19 @@ namespace Lotus_Dashboard1.Apis
 
 
 
-                    var sumunithaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
-                    var sumunithoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
-                    var sumamounthaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
-                    var sumamounthoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+                    var sumunithaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit))*nav;
+                    var sumunithoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit))*nav;
+                    var sumamounthaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit))*nav;
+                    var sumamounthoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit)) * nav;
 
 
                     onlinedata.sodooramountha = sumamounthaghighiS;
                     onlinedata.sodooramountho = sumamounthoghooghiS;
-                    onlinedata.ebtalamountha =Convert.ToInt64(sumunithaghighiE*100000);
-                    onlinedata.ebtalamountho = Convert.ToInt64(sumamounthoghooghiE*100000);
+                    onlinedata.ebtalamountha =Convert.ToInt64(sumunithaghighiE);
+                    onlinedata.ebtalamountho = Convert.ToInt64(sumamounthoghooghiE);
                     onlinedata.sodoorunitha = sumunithaghighiS;
                     onlinedata.sodoorunitho = sumunithoghooghiS;
-                    onlinedata.ebtalunitha = Convert.ToInt64(sumunithaghighiE*100000);
-
-
-
-
-
+                    onlinedata.ebtalunitha = Convert.ToInt64(sumunithaghighiE);
 
 
 
@@ -2165,7 +2180,30 @@ namespace Lotus_Dashboard1.Apis
                     {
                         fundname = "11315";
                     }
+                    Int64 nav = 0;
+                    string query = "select C##MAIN.LATEST_NAV_INFO.PURCHASENAV1 from C##MAIN.LATEST_NAV_INFO where C##MAIN.LATEST_NAV_INFO.BOURCECODE1=:id";
 
+                    Connection_Lotus1 CS = new Connection_Lotus1();
+                    OracleConnection OR = new OracleConnection(CS.CS1());
+                    OracleCommand OC = OR.CreateCommand();
+                    OracleParameter id1 = new OracleParameter("id", fundname);
+
+                    OC.Parameters.Add(id1);
+
+
+                    await OR.OpenAsync();
+                    OC.BindByName = true;
+                    OC.CommandText = query;
+
+                    DbDataReader reader = await OC.ExecuteReaderAsync();
+                    int i = 0;
+                    while (await reader.ReadAsync())
+                    {
+
+
+
+                        nav = await reader.IsDBNullAsync(0) ? 0 : Convert.ToInt32(reader.GetString(0));
+                    }
 
 
                     var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
@@ -2201,19 +2239,19 @@ namespace Lotus_Dashboard1.Apis
 
 
 
-                    var sumunithaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
-                    var sumunithoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
-                    var sumamounthaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit));
-                    var sumamounthoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit));
+                    var sumunithaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit)) * nav;
+                    var sumunithoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit)) * nav;
+                    var sumamounthaghighiE = (data2.Where(x => x.NationalCode.Length <= 10).Sum(x => x.FundUnit)) * nav;
+                    var sumamounthoghooghiE = (data2.Where(x => x.NationalCode.Length > 10).Sum(x => x.FundUnit)) * nav;
 
 
                     onlinedata.sodooramountha = sumamounthaghighiS;
                     onlinedata.sodooramountho = sumamounthoghooghiS;
-                    onlinedata.ebtalamountha = Convert.ToInt64(sumunithaghighiE * 100000);
-                    onlinedata.ebtalamountho = Convert.ToInt64(sumamounthoghooghiE * 100000);
+                    onlinedata.ebtalamountha = Convert.ToInt64(sumunithaghighiE);
+                    onlinedata.ebtalamountho = Convert.ToInt64(sumamounthoghooghiE);
                     onlinedata.sodoorunitha = sumunithaghighiS;
                     onlinedata.sodoorunitho = sumunithoghooghiS;
-                    onlinedata.ebtalunitha = Convert.ToInt64(sumunithaghighiE * 100000);
+                    onlinedata.ebtalunitha = Convert.ToInt64(sumunithaghighiE / nav);
 
 
 

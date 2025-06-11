@@ -2,6 +2,7 @@
 using Lotus_Dashboard1.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Oracle.ManagedDataAccess.Client;
 using RestSharp;
 using System.Data.Common;
@@ -34,11 +35,11 @@ namespace Lotus_Dashboard1.Apis
             List<SodoorChart_ViewModel> sodoorchart = new List<SodoorChart_ViewModel>();
 
             FindDate findDate = new FindDate();
-            
-            
 
-            
-          
+
+
+
+
 
             string startdate = "";
             string enddate = "";
@@ -73,7 +74,7 @@ namespace Lotus_Dashboard1.Apis
 
                 if (startdate == "" && enddate == "")
                 {
-                    
+
                     var d = PC.AddDays(DateTime.Now, -30);
                     var d1 = PersianDateTime.Parse(api_date).AddDays(0).ToString("yyyy/MM/dd");
                     //var d1 = PC.AddDays(Convert.ToDateTime( api_date), 1).ToString("yyyy/MM/dd");
@@ -147,7 +148,7 @@ namespace Lotus_Dashboard1.Apis
                 string api_date = await findDate.find_api_date_piroozan();
                 if (startdate == "" && enddate == "")
                 {
-                    
+
                     var d = PC.AddDays(DateTime.Now, -30);
                     var d1 = PersianDateTime.Parse(api_date).AddDays(0).ToString("yyyy/MM/dd");
                     //var d1 = PC.AddDays(Convert.ToDateTime( api_date), 1).ToString("yyyy/MM/dd");
@@ -431,6 +432,205 @@ namespace Lotus_Dashboard1.Apis
 
             }
 
+
+
+            if (dsname == "صندوق طلا")
+            {
+                string connectionString = "Data Source=192.168.1.131;Initial Catalog=LotusibBI;User ID=balavand;Password=123456;TrustServerCertificate=True";
+                string api_date = await findDate.find_api_date_alzahra();
+
+                if (startdate == "" && enddate == "")
+                {
+                    var d = PC.AddDays(DateTime.Now, -30);
+                    var d1 = PersianDateTime.Parse(api_date).AddDays(0).ToString("yyyy/MM/dd");
+                    //var d1 = PC.AddDays(Convert.ToDateTime( api_date), 1).ToString("yyyy/MM/dd");
+                    startdate = PC.GetYear(d).ToString() + "/" + PC.GetMonth(d).ToString() + "/" + PC.GetDayOfMonth(d).ToString();
+                    startdate = startdate.convertdate();
+                    enddate = d1;
+                    //enddate = api_date;
+                }
+                else
+                {
+
+                    startdate = PC.GetYear(Convert.ToDateTime(startdate)).ToString() + "/" + PC.GetMonth(Convert.ToDateTime(startdate)).ToString() + "/" + PC.GetDayOfMonth(Convert.ToDateTime(startdate)).ToString();
+                    startdate = startdate.convertdate();
+                    enddate = PC.GetYear(Convert.ToDateTime(enddate)).ToString() + "/" + PC.GetMonth(Convert.ToDateTime(enddate)).ToString() + "/" + PC.GetDayOfMonth(Convert.ToDateTime(enddate)).ToString();
+                    enddate = enddate.convertdate();
+
+                }
+
+
+
+
+                string query1 = " with query1 as (select [dbo].[Gold_Etemad].receiptDate as D1,sum([dbo].[Gold_Etemad].Amount) as S1 from [dbo].[Gold_Etemad] " +
+                                 $" where [dbo].[Gold_Etemad].receiptDate>='{startdate}' and [dbo].[Gold_Etemad].receiptDate<='{enddate}' and [dbo].[Gold_Etemad].dsName='11509'" +
+                                 " group by [dbo].[Gold_Etemad].receiptDate), " +
+                                 " query2 as (select [dbo].[Revoke_Queue].orderDate as D2, sum([dbo].[Revoke_Queue].fundUnit*100000) as S2 from [dbo].[Revoke_Queue]  " +
+                                 $" where [dbo].[Revoke_Queue].orderDate>='{startdate}' and [dbo].[Revoke_Queue].orderDate<='{enddate}' and [dbo].[Revoke_Queue].dsName='11509'" +
+                                 " group by[dbo].[Revoke_Queue].orderDate) select D2,S1,S2 from query2 full outer join query1 on query1.D1 = query2.D2 order by D2";
+                                
+
+                
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    SqlCommand command = new SqlCommand(query1, connection);
+                    
+                    connection.Open();
+                    SqlDataReader reader1 = command.ExecuteReader();
+                    try
+                    {
+
+                        while (await reader1.ReadAsync())
+                        {
+
+
+
+                            sodoorchart.Add(new SodoorChart_ViewModel()
+                            {
+
+                                orderdate = await reader1.IsDBNullAsync(0) ? "" : reader1.GetString(0),
+                                sumsodoor = await reader1.IsDBNullAsync(1) ? 0 : Convert.ToInt64(Convert.ToInt64(reader1.GetInt64(1))),
+                                sumebtal = await reader1.IsDBNullAsync(2) ? 0 : Convert.ToInt64(Convert.ToInt64(reader1.GetInt64(2))),
+
+                            });
+
+                          
+
+
+
+                        }
+                       
+                        return new JsonResult(sodoorchart);
+                    }
+
+                    finally
+                    {
+                        // Always call Close when done reading.
+                        reader1.Close();
+                        await connection.CloseAsync();
+                        await connection.DisposeAsync();
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+
+
+
+
+            if (dsname == "صندوق اعتماد")
+            {
+                string connectionString = "Data Source=192.168.1.131;Initial Catalog=LotusibBI;User ID=balavand;Password=123456;TrustServerCertificate=True";
+                string api_date = await findDate.find_api_date_alzahra();
+
+                if (startdate == "" && enddate == "")
+                {
+                    var d = PC.AddDays(DateTime.Now, -30);
+                    var d1 = PersianDateTime.Parse(api_date).AddDays(0).ToString("yyyy/MM/dd");
+                    //var d1 = PC.AddDays(Convert.ToDateTime( api_date), 1).ToString("yyyy/MM/dd");
+                    startdate = PC.GetYear(d).ToString() + "/" + PC.GetMonth(d).ToString() + "/" + PC.GetDayOfMonth(d).ToString();
+                    startdate = startdate.convertdate();
+                    enddate = d1;
+                    //enddate = api_date;
+                }
+                else
+                {
+
+                    startdate = PC.GetYear(Convert.ToDateTime(startdate)).ToString() + "/" + PC.GetMonth(Convert.ToDateTime(startdate)).ToString() + "/" + PC.GetDayOfMonth(Convert.ToDateTime(startdate)).ToString();
+                    startdate = startdate.convertdate();
+                    enddate = PC.GetYear(Convert.ToDateTime(enddate)).ToString() + "/" + PC.GetMonth(Convert.ToDateTime(enddate)).ToString() + "/" + PC.GetDayOfMonth(Convert.ToDateTime(enddate)).ToString();
+                    enddate = enddate.convertdate();
+
+                }
+
+
+
+
+                string query1 = " with query1 as (select [dbo].[Gold_Etemad].receiptDate as D1,sum([dbo].[Gold_Etemad].Amount) as S1 from [dbo].[Gold_Etemad] " +
+                                 $" where [dbo].[Gold_Etemad].receiptDate>='{startdate}' and [dbo].[Gold_Etemad].receiptDate<='{enddate}' and [dbo].[Gold_Etemad].dsName='11315'" +
+                                 " group by [dbo].[Gold_Etemad].receiptDate), " +
+                                 " query2 as (select [dbo].[Revoke_Queue].orderDate as D2, sum([dbo].[Revoke_Queue].fundUnit*100000) as S2 from [dbo].[Revoke_Queue]  " +
+                                 $" where [dbo].[Revoke_Queue].orderDate>='{startdate}' and [dbo].[Revoke_Queue].orderDate<='{enddate}' and [dbo].[Revoke_Queue].dsName='11315'" +
+                                 " group by[dbo].[Revoke_Queue].orderDate) select D2,S1,S2 from query2 full outer join query1 on query1.D1 = query2.D2 order by D2";
+
+
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    SqlCommand command = new SqlCommand(query1, connection);
+
+                    connection.Open();
+                    SqlDataReader reader1 = command.ExecuteReader();
+                    try
+                    {
+
+                        while (await reader1.ReadAsync())
+                        {
+
+
+
+                            sodoorchart.Add(new SodoorChart_ViewModel()
+                            {
+
+                                orderdate = await reader1.IsDBNullAsync(0) ? "" : reader1.GetString(0),
+                                sumsodoor = await reader1.IsDBNullAsync(1) ? 0 : Convert.ToInt64(Convert.ToInt64(reader1.GetInt64(1))),
+                                sumebtal = await reader1.IsDBNullAsync(2) ? 0 : Convert.ToInt64(Convert.ToInt64(reader1.GetInt64(2))),
+
+                            });
+
+
+
+
+
+                        }
+
+                        return new JsonResult(sodoorchart);
+                    }
+
+                    finally
+                    {
+                        // Always call Close when done reading.
+                        reader1.Close();
+                        await connection.CloseAsync();
+                        await connection.DisposeAsync();
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
 
             return new JsonResult(sodoorchart);
         }

@@ -10,7 +10,7 @@ namespace Lotus_Dashboard1.Apis
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GetSubBranches : ControllerBase
+    public class GetSubBranchesKeshavarzi : ControllerBase
     {
 
         public async Task<JsonResult> GetData(string fundname, string cdate)
@@ -96,7 +96,7 @@ namespace Lotus_Dashboard1.Apis
                    " where C##MAIN.API_PBF2_fund_order.creationdate1>=:id and C##MAIN.API_PBF2_fund_order.creationdate1<=:id and C##MAIN.API_PBF2_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
                    " and C##MAIN.API_PBF2_fund_order.ordertype1='صدور' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' " +
                    " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_PBF2_FUND_ORDER.ORDERPAYMENTTYPENAME1='حساب بانکي' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 in ('11111','22222','33333','44444','55555','66666')" +
-                   " and length (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1)>=4 and length (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1)<=5" +
+                   " and (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%کشاورزی%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%')" +
                    " group by C##MAIN.API_PBF2_FUND_ORDER.creationdate1" +
                     " union all" +
 
@@ -106,7 +106,7 @@ namespace Lotus_Dashboard1.Apis
                    " where C##MAIN.API_PBF2_fund_order.creationdate1>=:id and C##MAIN.API_PBF2_fund_order.creationdate1<=:id and C##MAIN.API_PBF2_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
                    " and C##MAIN.API_PBF2_fund_order.ordertype1='صدور' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' " +
                    " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_PBF2_FUND_ORDER.ORDERPAYMENTTYPENAME1='حساب بانکي' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 not in ('11111','22222','33333','44444','55555','66666')" +
-                   " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
+                   "and (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%کشاورزی%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%')" +
                    " group by C##MAIN.API_PBF2_FUND_ORDER.creationdate1" +
 
 
@@ -119,7 +119,7 @@ namespace Lotus_Dashboard1.Apis
                    " where C##MAIN.API_PBF2_fund_order.creationdate1>=:id and C##MAIN.API_PBF2_fund_order.creationdate1<=:id and C##MAIN.API_PBF2_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
                    " and C##MAIN.API_PBF2_fund_order.ordertype1='صدور' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 in ('11111','22222','33333','44444','55555','66666')" +
                    " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_PBF2_FUND_ORDER.ORDERPAYMENTTYPENAME1='اينترنتي(بدون هدايت به درگاه)'" +
-                   " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
+                   " and (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%کشاورزی%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%')" +
                    " group by C##MAIN.API_PBF2_FUND_ORDER.creationdate1" +
 
 
@@ -133,7 +133,7 @@ namespace Lotus_Dashboard1.Apis
                    " where C##MAIN.API_PBF2_fund_order.creationdate1>=:id and C##MAIN.API_PBF2_fund_order.creationdate1<=:id and C##MAIN.API_PBF2_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
                    " and C##MAIN.API_PBF2_fund_order.ordertype1='صدور' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 not in ('11111','22222','33333','44444','55555','66666')" +
                    " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_PBF2_FUND_ORDER.ORDERPAYMENTTYPENAME1='اينترنتي(بدون هدايت به درگاه)'" +
-                   " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
+                   " and (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%کشاورزی%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%')" +
                    " group by C##MAIN.API_PBF2_FUND_ORDER.creationdate1";
 
 
@@ -257,7 +257,7 @@ namespace Lotus_Dashboard1.Apis
                                      " where C##MAIN.API_NNF3_fund_order.creationdate1>=:id and C##MAIN.API_NNF3_fund_order.creationdate1<=:id and C##MAIN.API_NNF3_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
                                      " and C##MAIN.API_NNF3_fund_order.ordertype1='صدور' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' " +
                                      " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_NNF3_FUND_ORDER.ORDERPAYMENTTYPENAME1='حساب بانکي' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 not in ('11111','22222','33333','44444','55555','66666')" +
-                                     " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
+                                     " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%کشاورزی%'  and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
                                      " group by C##MAIN.API_NNF3_FUND_ORDER.creationdate1" +
 
 
@@ -270,7 +270,7 @@ namespace Lotus_Dashboard1.Apis
                                      " where C##MAIN.API_NNF3_fund_order.creationdate1>=:id and C##MAIN.API_NNF3_fund_order.creationdate1<=:id and C##MAIN.API_NNF3_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
                                      " and C##MAIN.API_NNF3_fund_order.ordertype1='صدور' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 in ('11111','22222','33333','44444','55555','66666')" +
                                     " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_NNF3_FUND_ORDER.ORDERPAYMENTTYPENAME1='اينترنتي(بدون هدايت به درگاه)'" +
-                                     " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
+                                     " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%کشاورزی%'  and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
                                      " group by C##MAIN.API_NNF3_FUND_ORDER.creationdate1" +
 
 
@@ -284,7 +284,7 @@ namespace Lotus_Dashboard1.Apis
                                      " where C##MAIN.API_NNF3_fund_order.creationdate1>=:id and C##MAIN.API_NNF3_fund_order.creationdate1<=:id and C##MAIN.API_NNF3_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
                                      " and C##MAIN.API_NNF3_fund_order.ordertype1='صدور' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 not in ('11111','22222','33333','44444','55555','66666')" +
                                      " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_NNF3_FUND_ORDER.ORDERPAYMENTTYPENAME1='اينترنتي(بدون هدايت به درگاه)'" +
-                                     " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
+                                     " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%کشاورزی%'  and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
                                      " group by C##MAIN.API_NNF3_FUND_ORDER.creationdate1";
 
 
@@ -398,13 +398,13 @@ namespace Lotus_Dashboard1.Apis
 
 
 
-                    string query =" select C##MAIN.PBF2_FUND_ORDER.order_date,sum(C##MAIN.PBF2_FUND_ORDER.ORDER_AMOUNT),count(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)," +
+                    string query = " select C##MAIN.PBF2_FUND_ORDER.order_date,sum(C##MAIN.PBF2_FUND_ORDER.ORDER_AMOUNT),count(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)," +
                         " count(distinct C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT) " +
                         " from C##MAIN.PBF2_FUND_ORDER " +
                         " where C##MAIN.PBF2_FUND_ORDER.order_date>=:id and C##MAIN.PBF2_FUND_ORDER.order_date<=:id and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2" +
                         " and C##MAIN.PBF2_FUND_ORDER.is_purchase=1 and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT is not null and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT<>'MBP' and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT<>'giftCard'" +
                          " and((length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)>=4 and length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)<=5)" +
-                        " or(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%پارسیان%'  and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%BCP%'))" +
+                        " or(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%کشاورزی%'  and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%BCP%'))" +
                         " and C##MAIN.PBF2_FUND_ORDER.fo_status_id=2" +
                         " group by C##MAIN.PBF2_FUND_ORDER.order_date";
 
@@ -439,7 +439,7 @@ namespace Lotus_Dashboard1.Apis
                         {
                             BranchDate = await reader.IsDBNullAsync(0) ? "0" : reader.GetString(0),
                             SodoorAmount = await reader.IsDBNullAsync(1) ? 0 : Convert.ToInt64(reader.GetString(1)),
-                            RequestNumber =await reader.IsDBNullAsync(2) ? 0 : Convert.ToInt32(reader.GetString(2)),
+                            RequestNumber = await reader.IsDBNullAsync(2) ? 0 : Convert.ToInt32(reader.GetString(2)),
                             BranchNumber = await reader.IsDBNullAsync(3) ? 0 : Convert.ToInt32(reader.GetString(3)),
 
                         });

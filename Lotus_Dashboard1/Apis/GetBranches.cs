@@ -106,7 +106,7 @@ namespace Lotus_Dashboard1.Apis
                    " where C##MAIN.API_PBF2_fund_order.creationdate1>=:id and C##MAIN.API_PBF2_fund_order.creationdate1<=:id and C##MAIN.API_PBF2_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
                    " and C##MAIN.API_PBF2_fund_order.ordertype1='صدور' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' " +
                    " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_PBF2_FUND_ORDER.ORDERPAYMENTTYPENAME1='حساب بانکي'" +
-                   " and length (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1)>=4 and length (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1)<=5" +
+                   "and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
                    " group by C##MAIN.API_PBF2_FUND_ORDER.creationdate1" +
                    
 
@@ -120,7 +120,7 @@ namespace Lotus_Dashboard1.Apis
                    " where C##MAIN.API_PBF2_fund_order.creationdate1>=:id and C##MAIN.API_PBF2_fund_order.creationdate1<=:id and C##MAIN.API_PBF2_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
                    " and C##MAIN.API_PBF2_fund_order.ordertype1='صدور' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' " +
                    " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_PBF2_FUND_ORDER.ORDERPAYMENTTYPENAME1='اينترنتي(بدون هدايت به درگاه)'" +
-                   " and length (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1)>=4 and length (C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1)<=5"+
+                   " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
                    " group by C##MAIN.API_PBF2_FUND_ORDER.creationdate1";
 
 
@@ -277,29 +277,28 @@ namespace Lotus_Dashboard1.Apis
                 {
 
 
-
                     string query = " select C##MAIN.API_NNF3_FUND_ORDER.creationdate1,sum(C##MAIN.API_NNF3_FUND_ORDER.ORDERAMOUNT1),count(C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1), " +
-                   " count(distinct C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1) ,  'fish' as rectype" +
-                   " from C##MAIN.API_NNF3_FUND_ORDER " +
-                   " where C##MAIN.API_NNF3_fund_order.creationdate1>=:id and C##MAIN.API_NNF3_fund_order.creationdate1<=:id and C##MAIN.API_NNF3_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
-                   " and C##MAIN.API_NNF3_fund_order.ordertype1='صدور' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' " +
-                   " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_NNF3_FUND_ORDER.ORDERPAYMENTTYPENAME1='حساب بانکي'" +
-                   " and length (C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1)>=4 and length (C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1)<=5" +
-                   " group by C##MAIN.API_NNF3_FUND_ORDER.creationdate1" +
-                   
+                          " count(distinct C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1) ,  'fish' as rectype" +
+                          " from C##MAIN.API_NNF3_FUND_ORDER " +
+                          " where C##MAIN.API_NNF3_fund_order.creationdate1>=:id and C##MAIN.API_NNF3_fund_order.creationdate1<=:id and C##MAIN.API_NNF3_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
+                          " and C##MAIN.API_NNF3_fund_order.ordertype1='صدور' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' " +
+                          " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_NNF3_FUND_ORDER.ORDERPAYMENTTYPENAME1='حساب بانکي'" +
+                          "and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
+                          " group by C##MAIN.API_NNF3_FUND_ORDER.creationdate1" +
 
 
-                   " union all" +
+
+                          " union all" +
 
 
-                   " select C##MAIN.API_NNF3_FUND_ORDER.creationdate1,sum(C##MAIN.API_NNF3_FUND_ORDER.ORDERAMOUNT1),count(C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1), " +
-                   " count(distinct C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1), 'internet' as rectype " +
-                   " from C##MAIN.API_NNF3_FUND_ORDER " +
-                   " where C##MAIN.API_NNF3_fund_order.creationdate1>=:id and C##MAIN.API_NNF3_fund_order.creationdate1<=:id and C##MAIN.API_NNF3_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
-                   " and C##MAIN.API_NNF3_fund_order.ordertype1='صدور' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' " +
-                   " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_NNF3_FUND_ORDER.ORDERPAYMENTTYPENAME1='اينترنتي(بدون هدايت به درگاه)'" +
-                   " and length (C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1)>=4 and length (C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1)<=5" +
-                   " group by C##MAIN.API_NNF3_FUND_ORDER.creationdate1";
+                          " select C##MAIN.API_NNF3_FUND_ORDER.creationdate1,sum(C##MAIN.API_NNF3_FUND_ORDER.ORDERAMOUNT1),count(C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1), " +
+                          " count(distinct C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1), 'internet' as rectype " +
+                          " from C##MAIN.API_NNF3_FUND_ORDER " +
+                          " where C##MAIN.API_NNF3_fund_order.creationdate1>=:id and C##MAIN.API_NNF3_fund_order.creationdate1<=:id and C##MAIN.API_NNF3_FUND_ORDER.FOSTATUSNAME1<>'حذف شده' " +
+                          " and C##MAIN.API_NNF3_fund_order.ordertype1='صدور' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'0' and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'MBP' " +
+                          " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_NNF3_FUND_ORDER.ORDERPAYMENTTYPENAME1='اينترنتي(بدون هدايت به درگاه)'" +
+                          " and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_NNF3_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
+                          " group by C##MAIN.API_NNF3_FUND_ORDER.creationdate1";
 
 
 
@@ -469,7 +468,8 @@ namespace Lotus_Dashboard1.Apis
                         " from C##MAIN.PBF2_FUND_ORDER " +
                         " where C##MAIN.PBF2_FUND_ORDER.order_date>=:id and C##MAIN.PBF2_FUND_ORDER.order_date<=:id and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2" +
                         " and C##MAIN.PBF2_FUND_ORDER.is_purchase=1 and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT is not null and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT<>'MBP' and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT<>'giftCard'" +
-                        " and length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)>=4 and length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)<=5" +
+                        " and((length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)>=4 and length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)<=5)"+  
+                        " or(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%پارسیان%'  and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%BCP%'))"+
                         " and C##MAIN.PBF2_FUND_ORDER.fo_status_id=2" +
                         " group by C##MAIN.PBF2_FUND_ORDER.order_date";
 
@@ -600,9 +600,11 @@ namespace Lotus_Dashboard1.Apis
                         " from C##MAIN.NNF3_FUND_ORDER " +
                         " where C##MAIN.NNF3_FUND_ORDER.order_date>=:id and C##MAIN.NNF3_FUND_ORDER.order_date<=:id and C##MAIN.NNF3_FUND_ORDER.FO_STATUS_ID=2" +
                         " and C##MAIN.NNF3_FUND_ORDER.is_purchase=1 and C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT is not null and C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT<>'MBP' and C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT<>'giftCard'" +
-                        " and length(C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT)>=4 and length(C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT)<=5" +
+                        " and((length(C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT)>=4 and length(C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT)<=5)" +
+                        " or(C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT like '%پارسیان%'  and C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT like '%BCP%'))" +
                         " and C##MAIN.NNF3_FUND_ORDER.fo_status_id=2" +
                         " group by C##MAIN.NNF3_FUND_ORDER.order_date";
+
 
 
 

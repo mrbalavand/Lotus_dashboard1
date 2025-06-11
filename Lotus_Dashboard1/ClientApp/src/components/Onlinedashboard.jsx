@@ -70,7 +70,7 @@ let checkloginn = false;
 let maxunitloading1 = false;
 let maxunitloading2 = false;
 let maxnavdate = false;
-
+let checkaum = false;
 
 
 
@@ -112,6 +112,8 @@ export function Onlinedashboard() {
     let [fundcapital, setfundcapital] = useState("");
     let [time, settime] = useState(0);
     let [branch, setbranch] = useState("");
+    let [branchkeshavarzi, setbranchkeshavarzi] = useState("");
+    /*let [subbranchkeshavarzi, subsetbranchkeshavarzi] = useState("");*/
     let [subbranch, setsubbranch] = useState("");
     let [mobile, setmobile] = useState("");
 
@@ -121,6 +123,9 @@ export function Onlinedashboard() {
     let [opentable, setopentable] = useState("");
     let [opentable1, setopentable1] = useState("");
     let [userinfo, setuserinfo] = useState("");
+    let [showallbranches, setshowallbranches] = useState("");
+
+    let [AUM, setAUM] = useState("");
 
 
     const [time1, setTime1] = useState(new Date());
@@ -128,8 +133,11 @@ export function Onlinedashboard() {
     const [ptime, setptime] = useState(new Date().toLocaleDateString());
 
     let branchesval = false;
+    let branchesvalkeshavarzi = false;
     let branchesval1 = false;
+    let branchesval1keshavarzi = false;
     let mobileval = false;
+
 
     let accessuser = ["آقای جمال الدین نیک اندیش", "آقای هادی روزگار", "علیرضا بالاوند", "ceo", "خانم مریم خوشدل"]
     //useEffect(() => {
@@ -267,6 +275,8 @@ export function Onlinedashboard() {
             getfundvalue(e, cdate);
             getbranchesdata(e, cdate);
             getbranchesdata1(e, cdate);
+            getbrancheskeshavarzi(e, cdate);
+           /* getbranchesdata1keshavarzi(e, cdate);*/
 
             getmobiledata(e, cdate)
 
@@ -280,7 +290,7 @@ export function Onlinedashboard() {
 
             getnavdate();
             getfundcapital(e, cdate);
-            
+            getaum();
 
 
         }
@@ -319,6 +329,31 @@ export function Onlinedashboard() {
     };
 
 
+    async function getbrancheskeshavarzi(e, cdate) {
+
+
+        branchesvalkeshavarzi = false;
+        setbranchkeshavarzi("");
+        const brancheskeshavarzi = await axios.get(myContext.url + `api/GetBranchesKeshavarzi?fundname=${e}&cdate=${cdate}`);
+
+        if (brancheskeshavarzi.data.length > 0) {
+
+            branchesvalkeshavarzi = true;
+            setbranchkeshavarzi(brancheskeshavarzi.data);
+
+
+        }
+
+        else {
+            branchesvalkeshavarzi = false;
+            setbranchkeshavarzi("");
+
+        }
+
+
+
+    };
+
 
 
 
@@ -348,6 +383,33 @@ export function Onlinedashboard() {
 
     };
 
+
+
+    //async function getbranchesdata1keshavarzi(e, cdate) {
+
+
+    //    branchesval1keshavarzi = false;
+    //    subsetbranchkeshavarzi("");
+    //    const branches1 = await axios.get(myContext.url + `api/GetSubBranchesKeshavarzi?fundname=${e}&cdate=${cdate}`);
+
+    //    if (branches1.data.length > 0) {
+
+    //        branchesval1keshavarzi = true;
+    //        /*console.log(branches1)*/
+    //        subsetbranchkeshavarzi(branches1.data);
+
+
+    //    }
+
+    //    else {
+    //        branchesval1keshavarzi = false;
+    //        subsetbranchkeshavarzi("");
+
+    //    }
+
+
+
+    //};
 
 
     async function getmobiledata(e, cdate) {
@@ -585,9 +647,9 @@ export function Onlinedashboard() {
 
         try {
             scrolltableloading = false;
-         
-             data = await axios.get(`${myContext.url}api/MostOnlineOrders?fundname=${e}&cdate=${cdate}`);
-            
+
+            data = await axios.get(`${myContext.url}api/MostOnlineOrders?fundname=${e}&cdate=${cdate}`);
+
 
 
             if (data.data.length > 0) {
@@ -991,6 +1053,34 @@ export function Onlinedashboard() {
 
     }
 
+    async function getaum() {
+
+        try {
+            checkaum = false;
+            const aumdata = await axios.get(myContext.url + `api/AUM`);
+
+
+            setAUM(() => { return aumdata ? (aumdata.data) : ("مشکل ارتباط با سرور") });
+
+
+
+
+
+            checkaum = true;
+
+        } catch (e) {
+
+
+            console.log("مشکل ارتباط با سرور")
+            setAUM(() => "مشکل ارتباط با سرور");
+            checkaum = false;
+
+
+        }
+
+
+    }
+
 
     if (checkloginn === false) {
 
@@ -1158,13 +1248,22 @@ export function Onlinedashboard() {
                         </div>
 
                     </div>
-                    <div id="leftdash" className="col-lg-12 col-xl-4 row justify-content-center align-items-center g-0 border border-dark border-2 mb-2 rounded p-3">
+                    <div id="leftdash" className="col-lg-12 col-xl-4 row justify-content-start align-items-center g-0 border border-dark border-2 mb-2 rounded p-3">
 
 
 
-                        {regnum.length !== 0 ? (<div className="col-md-6 shadow mb-1"><div className="row m-0 bg-white"><div className="col-md-6 p-0"><div className=" bg-white text-right ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "24px" }} className="mb-0">{commafy(regnum)}</div><div style={{ fontSize: "14px" }} className="text-muted"> تعداد ثبت نام پرتال </div></div></div><div className="d-flex justify-content-end col-md-6 bg-white align-self-center"><FontAwesomeIcon icon={faUserGroup} size="1x" color="rgb(3,200,60)" /> <span style={{ fontWeight: "bold", color: "black", fontSize: "10px" }}></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={50} width={50} />)}
+                        {/*{regnum.length !== 0 ? (<div className="col-md-12 mb-1"><div className="row m-0 bg-white border border-0 border-bottom border-top"><div className="col-md-6 p-0"><div className=" bg-white text-right ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "24px" }} className="mb-0 text-right">{commafy(regnum)}</div><div style={{ fontSize: "14px" }} className="text-muted"> تعداد ثبت نام پرتال </div></div></div><div className="d-flex justify-content-end col-md-6 bg-white align-self-center"> <span style={{ fontWeight: "bold", color: "black", fontSize: "10px" }}></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={60} width={50} />)}*/}
 
-                        {fundvalue.length !== 0 ? (<div className="col-md-6 shadow mb-1"><div className="row m-0 justify-content-end bg-white"><div className="col-md-10 p-0"><div className=" bg-white text-left ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "24px" }} className="mb-0">{commafy(Math.round(fundvalue / 10))}</div><div style={{ fontSize: "16px" }} className="text-muted">  خالص ارزش دارایی </div></div></div><div className="d-flex justify-content-end col-md-2 align-self-center bg-white text-center"><FontAwesomeIcon icon={faLineChart} size="1x" color="rgb(3,200,60)" /> <span style={{ fontWeight: "bold", color: "black", fontSize: "10px" }}></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={50} width={50} />)}
+
+                        {/*{fundvalue.length !== 0 ? (<div className="col-md-12 mb-1"><div className="row m-0 bg-white border border-0 border-bottom border-top"><div className="col-md-6 p-0"><div className=" bg-white text-right ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "22px" }} className="mb-0 text-right">{commafy(Math.round(fundvalue / 10))}</div><div style={{ fontSize: "16px" }} className="text-muted text-right">دارایی تحت مدیریت </div></div></div><div className="d-flex justify-content-end col-md-6 bg-white align-self-center"> <span style={{ fontWeight: "bold", color: "black", fontSize: "10px" }}></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={60} width={50} />)}*/}
+
+                        {regnum.length !== 0 ? (<div className="col-md-12 mb-1 border border-0 border-bottom "><div className="row m-0 justify-content-start bg-white"><div className="col-md-6 p-0"><div className="text-left ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "24px" }} className="mb-0 border border-0 border-end"></div><div style={{ fontSize: "14px" }} className="text-muted border border-0 border-end">  تعداد ثبت نام در پرتال </div></div></div><div className="d-flex justify-content-start col-md-6 align-self-center text-left"> <span className="d-flex justify-content-start col-md-10" style={{ color: "black", fontSize: "24px" }}>{commafy(Math.round(regnum))} </span><span className="d-flex justify-content-end align-self-center col-md-2"></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={50} width={50} />)}
+
+                        {fundvalue.length !== 0 ? (<div className="col-md-12 mb-1 border border-0 border-bottom"><div className="row m-0 justify-content-start bg-white"><div className="col-md-6 p-0"><div className="text-left ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "24px" }} className="mb-0 border border-0 border-end"></div><div style={{ fontSize: "14px" }} className="text-muted border border-0 border-end">  AUM </div></div></div><div className="d-flex justify-content-end col-md-6 align-self-center text-left"> <span className="d-flex justify-content-start col-md-10" style={{ color: "black", fontSize: "24px" }}>{commafy(Math.round(fundvalue))} </span><span className="d-flex justify-content-end align-self-center col-md-2"></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={50} width={50} />)}
+                        
+
+
+                        {/*{fundvalue.length !== 0 ? (<div className="col-md-6 mb-1"><div className="row m-0 bg-white border border-0 border-bottom border-top"><div className="col-md-6 p-0"><div className=" bg-white text-right ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "24px" }} className="mb-0">{commafy(Math.round(fundvalue / 10))}<small>(AUM)</small></div><div style={{ fontSize: "16px" }} className="text-muted"> </div></div></div><div className="d-flex justify-content-end col-md-2 align-self-center bg-white text-center"> <span style={{ fontWeight: "bold", color: "black", fontSize: "10px" }}></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={50} width={50} />)}*/}
 
 
                         {/*{fundvalue.length !== 0 ? (<div className="col-md-6" ><div className=" shadow bg-light rounded text-center border border-dark border-end" style={{ fontSize: "16px" }}>  خالص ارزش دارایی :<br /> {commafy(Math.round(fundvalue / 10))} <small className="d-inline" style={{ fontSize: "11px" }}>(تومان)</small></div></div>) : (<ReactLoading type="spinningBubbles" height={50} width={50} color="rgb(0,50,60)" />)}*/}
@@ -1173,12 +1272,18 @@ export function Onlinedashboard() {
 
                         {/*{regnum.length !== 0 ? (<div className="col-md-6" ><div className=" shadow rounded text-center border border-dark border-end" id="modal1"><Maxunitmodal sandogh={fundname} maxunits={maxunit} navdate1={ navdate} customertype="حقیقی" /></div></div>) : (<ReactLoading type="spinningBubbles" height={50} width={50} color="rgb(0,50,60)" />)}*/}
 
-                        {fundcapital.length !== 0 ? (<div className="col-md-12 shadow mb-1"><div className="row m-0 justify-content-center bg-white"><div className="col-md-6 shadow p-0"><div className="text-left ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "24px" }} className="mb-0"></div><div style={{ fontSize: "14px" }} className="text-muted">  مجموع تعداد واحدهای سرمایه گذاری نزد سرمایه گذاران </div></div></div><div className="d-flex justify-content-end col-md-6 align-self-center text-left"> <span className="d-flex justify-content-center col-md-10" style={{ color: "black", fontSize: "24px" }}>{commafy(Math.round(fundcapital))} </span><span className="d-flex justify-content-end align-self-center col-md-2"><FontAwesomeIcon icon={faCartArrowDown} size="1x" color="rgb(3,200,60)" /></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={50} width={50} />)}
-
-                        {maxunit.length > 0 && maxunitloading1 !== false ? (<div className="col-md-6 shadow"><div className="row m-0 justify-content-start bg-white"><div className="col-md-10 p-0"><Maxunitmodal loading={maxunitloading1} sandogh={fundname} maxunits={maxunit} navdate1={navdate} customertype="حقیقی" /></div><div className="d-flex justify-content-end col-md-2 align-self-center bg-white text-center"><FontAwesomeIcon icon={faPieChart} size="1x" color="rgb(3,200,60)" /> <span style={{ fontWeight: "bold", color: "black", fontSize: "10px" }}></span></div></div></div>) : (JSON.stringify(maxunit))}
+                        {fundcapital.length !== 0 ? (<div className="col-md-12 mb-1 border border-0 border-bottom"><div className="row m-0 justify-content-start bg-white"><div className="col-md-6 p-0"><div className="text-left ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "24px" }} className="mb-0 border border-0 border-end"></div><div style={{ fontSize: "14px" }} className="text-muted border border-0 border-end">  مجموع تعداد واحدهای سرمایه گذاری نزد سرمایه گذاران </div></div></div><div className="d-flex justify-content-end col-md-6 align-self-start text-left"> <span className="d-flex justify-content-start col-md-10" style={{ color: "black", fontSize: "24px" }}>{commafy(Math.round(fundcapital))} </span><span className="d-flex justify-content-end align-self-center col-md-2"></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={50} width={50} />)}
 
 
-                        {maxunit1.length > 0 && maxunitloading2 !== false ? (<div className="col-md-6 shadow"><div className="row m-0 justify-content-start bg-white"><div className="col-md-10 p-0"><Maxunitmodal loading={maxunitloading2} sandogh={fundname} maxunits={maxunit1} navdate1={navdate} customertype="حقوقی" /></div><div className="d-flex justify-content-end col-md-2 align-self-center bg-white text-center"><FontAwesomeIcon icon={faPieChart} size="1x" color="rgb(3,200,60)" /> <span style={{ fontWeight: "bold", color: "black", fontSize: "10px" }}></span></div></div></div>) : (JSON.stringify(maxunit))}
+                        {AUM.length !== 0 ? (<div className="col-md-12 mb-1 border border-0 border-bottom"><div className="row m-0 justify-content-start bg-white"><div className="col-md-6 p-0"><div className="text-left ps-2" style={{ fontSize: "16px" }}><div style={{ fontSize: "24px" }} className="mb-0"></div><div style={{ fontSize: "14px" }} className="text-muted border border-0 border-end">  مجموع دارایی تحت مدیریت (همت) <a href="http://powerbi:8081/Rs/powerbi/BILinks" target="_blank"><small>جزئیات</small></a></div></div></div><div className="d-flex justify-content-end col-md-6 align-self-center text-left"> <span className="d-flex justify-content-start col-md-10" style={{ color: "black", fontSize: "24px" }}>{commafy(Math.round(AUM))} </span><span className="d-flex justify-content-end align-self-center col-md-2"></span></div></div></div>) : (<ReactLoading type="spinningBubbles" color="blue" height={50} width={50} />)}
+
+
+
+
+                        {maxunit.length > 0 && maxunitloading1 !== false ? (<div className="col-md-6 border border-0 border-bottom border-end"><div className="row m-0 justify-content-start bg-white"><div className="col-md-10 p-0"><Maxunitmodal loading={maxunitloading1} sandogh={fundname} maxunits={maxunit} navdate1={navdate} customertype="حقیقی" /></div><div className="d-flex justify-content-end col-md-2 align-self-center bg-white"> <span style={{ fontWeight: "bold", color: "black", fontSize: "10px" }}></span></div></div></div>) : (JSON.stringify(maxunit))}
+
+
+                        {maxunit1.length > 0 && maxunitloading2 !== false ? (<div className="col-md-6 border border-0 border-bottom"><div className="row m-0 justify-content-start bg-white"><div className="col-md-10 p-0"><Maxunitmodal loading={maxunitloading2} sandogh={fundname} maxunits={maxunit1} navdate1={navdate} customertype="حقوقی" /></div><div className="d-flex justify-content-end col-md-2 align-self-center bg-white"> <span style={{ fontWeight: "bold", color: "black", fontSize: "10px" }}></span></div></div></div>) : (JSON.stringify(maxunit))}
 
 
 
@@ -1236,7 +1341,7 @@ export function Onlinedashboard() {
 
                                     <div className="justify-content-center text-center" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(200,200,200)", color: "rgb(0,80,50)" }}>50 سفارش برترصدور</div>
 
-                                    <div style={{ height: "30vh", color: "wheat" }}>
+                                    <div style={{ height: "40vh", color: "wheat" }}>
                                         <TableScrollbar>
 
                                             <table className="table table-responsive table-bordered bg-light shadow ">
@@ -1313,10 +1418,10 @@ export function Onlinedashboard() {
                                 {/*</div>*/}
 
 
-                                <div className="col-md-6 pe-2 w-90 mb-2 p-0 d-inline text-dark border border-secondary text-center rounded" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(161,248,180)" }} >
+                                <div className="col-md-6 pe-2 w-90 mb-2 p-0 d-inline text-light border border-secondary text-center rounded" style={{ fontSize: "16px", backgroundColor: "rgb(0,60,50)" }} >
                                     صدور حقیقی
                                 </div>
-                                <div className="col-md-6 mb-2 p-0 d-inline text-dark border border-secondary text-center rounded" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(243,248,161)" }} >
+                                <div className="col-md-6 mb-2 p-0 d-inline text-light border border-secondary text-center rounded" style={{ fontSize: "16px", backgroundColor: "rgb(0,60,50)" }} >
                                     صدور حقوقی
                                 </div>
 
@@ -1358,10 +1463,10 @@ export function Onlinedashboard() {
 
                                 <div className="col-md-6 text-center">
                                     <div className="card border border-secondary" style={{ fontWeight: "bold" }} >
-                                        <div className="card-header" style={{ fontSize: "16px", backgroundColor: "rgb(161,248,180)" }}>
+                                        <div className="card-header text-dark" style={{ fontSize: "16px" }}>
                                             مبلغ صدور  <small style={{ fontSize: "11px" }}>(تومان)</small>
                                         </div>
-                                        <div className="card-body shadow text-center" style={{ height: "50px", fontSize: "16px", backgroundColor: "rgb(161,248,180)", fontWeight: "bold" }}>
+                                        <div className="card-body shadow text-center" style={{ height: "50px", fontSize: "16px", backgroundColor: "rgb(255,255,255)" }}>
                                             <p className="card-text">{funddata.length !== 0 ? (commafy(onlineorders.sodoorunitha / 10)) : (<p className="col-md-2 pt-5"><ReactLoading type="spinningBubbles" color="blue" height={100} width={"50%"} color="rgb(0,50,60)" /></p>)}</p>
                                         </div>
                                     </div>
@@ -1370,10 +1475,10 @@ export function Onlinedashboard() {
 
                                 <div className="col-md-6 text-center">
                                     <div className="card border border-secondary" style={{ fontWeight: "bold" }} >
-                                        <div className="card-header" style={{ fontSize: "16px", backgroundColor: "rgb(243,248,161)" }}>
+                                        <div className="card-header text-dark" style={{ fontSize: "16px", backgroundColor: "rgb(255,255,255)" }}>
                                             مبلغ صدور <small style={{ fontSize: "11px" }}>(تومان)</small>
                                         </div>
-                                        <div className="card-body shadow text-center" style={{ height: "50px", fontSize: "16px", backgroundColor: "rgb(243,248,161)", fontWeight: "bold" }}>
+                                        <div className="card-body shadow text-center" style={{ height: "50px", fontSize: "16px", backgroundColor: "rgb(255,255,255)", fontWeight: "bold" }}>
                                             <p className="card-text">{funddata.length !== 0 ? (commafy(onlineorders.sodoorunitho / 10)) : (0)}</p>
                                         </div>
                                     </div>
@@ -1384,7 +1489,7 @@ export function Onlinedashboard() {
 
                                 <div className="col-md-6 mt-2" style={{ fontSize: "16px", fontWeight: "bold" }}>
 
-                                    <table className="table table-hover shadow text-dark border border-dark" style={{ backgroundColor: "rgb(161,248,180)" }}>
+                                    <table className="table table-hover shadow text-dark border border-dark" style={{ backgroundColor: "rgb(255,255,255)" }}>
 
 
 
@@ -1451,7 +1556,7 @@ export function Onlinedashboard() {
 
                                 <div className="col-md-6 mt-2" style={{ fontSize: "16px", fontWeight: "bold" }}>
 
-                                    <table className="table table-hover shadow text-dark border border-dark" style={{ backgroundColor: "rgb(243,248,161)" }}>
+                                    <table className="table table-hover shadow text-dark border border-dark" style={{ backgroundColor: "rgb(255,255,255)" }}>
 
 
 
@@ -1523,14 +1628,12 @@ export function Onlinedashboard() {
 
 
 
-                        </div>
-                        <div className="row col-md-12 g-0" style={{ fontSize: "22px" }}>
-
-
-
-
 
                         </div>
+                       
+
+
+
                     </div>
 
                     <div className="col-lg-12 col-xl-4 p-3 pt-0 border bg-light border-secondary border-2 rounded" >
@@ -1576,7 +1679,7 @@ export function Onlinedashboard() {
 
 
 
-                                    <div style={{ height: "30vh", color: "wheat" }}>
+                                    <div style={{ height: "40vh", color: "wheat" }}>
                                         <TableScrollbar>
 
                                             <table className="table table-responsive table-bordered bg-light shadow ">
@@ -1649,10 +1752,10 @@ export function Onlinedashboard() {
 
 
 
-                                <div className="col-md-6 mb-2 p-0 d-inline text-dark border border-secondary text-center rounded" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(161,248,180)" }} >
+                                <div className="col-md-6 mb-2 p-0 d-inline text-dark border border-secondary text-center rounded" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(255,181,0)" }} >
                                     ابطال حقیقی
                                 </div>
-                                <div className="col-md-6 mb-2 p-0 d-inline text-dark border border-secondary text-center rounded" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(243,248,161)" }} >
+                                <div className="col-md-6 mb-2 p-0 d-inline text-dark border border-secondary text-center rounded" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(255,181,0)" }} >
                                     ابطال حقوقی
                                 </div>
 
@@ -1661,12 +1764,12 @@ export function Onlinedashboard() {
 
 
                                 <div className="col-md-6 text-center">
-                                    <div className="card border border-secondary" style={{ fontSize: "16px", backgroundColor: "rgb(161,248,180)" }}>
+                                    <div className="card border border-secondary" style={{ fontSize: "16px", backgroundColor: "rgb(255,255,255)" }}>
 
                                         <div className="card-header text-dark" style={{ fontWeight: "bold" }}>
                                             مبلغ ابطال  <small style={{ fontSize: "11px" }}>(تومان)</small>
                                         </div>
-                                        <div className="card-body shadow text-center text-dark" style={{ height: "50px", fontSize: "16px", backgroundColor: "rgb(161,248,180)", fontWeight: "bold" }}>
+                                        <div className="card-body shadow text-center text-dark" style={{ height: "50px", fontSize: "16px", backgroundColor: "rgb(255,255,255)", fontWeight: "bold" }}>
                                             <p className="card-text">{funddata.length !== 0 ? (commafy((onlineorders.ebtalamountha / 10))) : (0)}</p>
                                         </div>
                                     </div>
@@ -1676,12 +1779,12 @@ export function Onlinedashboard() {
 
 
                                 <div className="col-md-6 text-center">
-                                    <div className="card border border-secondary" style={{ fontSize: "16px", backgroundColor: "rgb(243,248,161)" }}>
+                                    <div className="card border border-secondary" style={{ fontSize: "16px", backgroundColor: "rgb(255,255,255)" }}>
 
                                         <div className="card-header text-dark" style={{ fontWeight: "bold" }}>
                                             مبلغ ابطال <small style={{ fontSize: "11px" }}>(تومان)</small>
                                         </div>
-                                        <div className="card-body shadow text-center text-dark" style={{ height: "50px", fontSize: "16px", backgroundColor: "rgb(243,248,161)", fontWeight: "bold" }}>
+                                        <div className="card-body shadow text-center text-dark" style={{ height: "50px", fontSize: "16px", backgroundColor: "rgb(255,255,255)", fontWeight: "bold" }}>
                                             <p className="card-text">{funddata.length !== 0 ? (commafy((onlineorders.ebtalamountho / 10))) : (0)}</p>
                                         </div>
                                     </div>
@@ -1719,7 +1822,7 @@ export function Onlinedashboard() {
 
                                 <div className="col-md-6 mt-2" style={{ fontSize: "16px", fontWeight: "bold" }}>
 
-                                    <table className="table table-hover shadow text-dark border border-dark" style={{ backgroundColor: "rgb(161,248,180)" }}>
+                                    <table className="table table-hover shadow text-dark border border-dark" style={{ backgroundColor: "rgb(255,255,255)" }}>
 
 
 
@@ -1782,7 +1885,7 @@ export function Onlinedashboard() {
 
                                 <div className="col-md-6 mt-2" style={{ fontSize: "16px", fontWeight: "bold" }}>
 
-                                    <table className="table table-hover shadow text-dark border border-dark" style={{ backgroundColor: "rgb(243,248,161)" }}>
+                                    <table className="table table-hover shadow text-dark border border-dark" style={{ backgroundColor: "rgb(255,255,255)" }}>
 
 
 
@@ -1902,7 +2005,7 @@ export function Onlinedashboard() {
 
                         </div>
 
-
+                        
 
 
                     </div>
@@ -1914,7 +2017,9 @@ export function Onlinedashboard() {
                         <div className="row col-md-12 mt-0 border-end rounded p-0 g-0">
                             <div className="col-md-12 m-0" style={{ fontSize: "15px", fontWeight: "bold" }}>
 
-                                <div className="justify-content-center text-center" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(200,200,200)", color: "rgb(0,80,50)" }}>گزارش عملکرد شعب بانک پارسیان</div>
+                              
+
+                                <div className="justify-content-center  text-center" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(200,200,200)", color: "rgb(0,80,50)" }}>گزارش عملکرد شعب بانک پارسیان</div>
 
                                 <div style={{ height: !opentable && opentable1 ? ("30vh") : opentable && !opentable1 ? ("30vh") : opentable && opentable1 ? ("35vh") : ("20vh") }}>
 
@@ -2041,6 +2146,97 @@ export function Onlinedashboard() {
 
                             </div>
 
+
+
+                            <div className="col-md-12 m-0" style={{ fontSize: "15px", fontWeight: "bold" }}>
+
+                                <div className="justify-content-center text-center" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(200,200,200)", color: "rgb(0,80,50)" }}>گزارش عملکرد شعب بانک کشاورزی</div>
+
+                                <div style={{ height: !opentable && opentable1 ? ("20vh") : opentable && !opentable1 ? ("20vh") : opentable && opentable1 ? ("25vh") : ("10vh") }}>
+
+                                    {branchesvalkeshavarzi === true || branchkeshavarzi.length !== 0 ? (
+                                        <TableScrollbar>
+
+                                            <table className="table table-responsive bg-light shadow">
+
+
+                                                <thead>
+                                                    <tr className="boder border-dark border-1 text-dark text-center" style={{ backgroundColor: "rgb(137,141,141)", height: "20px", alignItems: "center" }}>
+                                                        <th scope="col">منابع تجهیز شده شعب (تومان)</th>
+                                                        <th scope="col">تعداد درخواست ها</th>
+                                                        <th scope="col">تعداد شعب فعال</th>
+
+
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody className="text-center">
+
+
+
+
+                                                    <tr className="text-dark" style={{ fontSize: "13px" }}>
+                                                        <td className="text-start">منابع تجهیز شده (صدور اتوماتیک) : &nbsp;&nbsp; {filterbranch(branchkeshavarzi, "internet")}</td>
+
+                                                        <td>{filterbranchcount(branchkeshavarzi, "internet")}</td>
+                                                        <td>{filterbranchreq(branchkeshavarzi, "internet")}</td>
+
+
+
+                                                    </tr>
+
+
+
+                                                    {/*{opentable ? (<tr className="text-muted" style={{ fontSize: "13px" }}>*/}
+
+                                                    {/*    <td className="text-start ps-5"><FontAwesomeIcon icon={faCheckCircle} size="1x" color="rgb(255, 181, 0)" />&nbsp;شعبه اختصاصی لوتوس : &nbsp;&nbsp; {filterbranch(subbranchkeshavarzi, "internet-branch")}</td>*/}
+
+                                                    {/*    <td className="">{filterbranchcount(subbranchkeshavarzi, "internet-branch")}</td>*/}
+                                                    {/*    <td className="">{filterbranchreq(subbranchkeshavarzi, "internet-branch")}</td></tr>) : (<div style={{ display: "none" }}></div>)*/}
+
+
+
+                                                    {/*}*/}
+
+                                                    {/*{opentable ? (<tr className="text-muted" style={{ fontSize: "13px" }}>*/}
+                                                    {/*    <td className="text-start ps-5"><FontAwesomeIcon icon={faCheckCircle} size="1x" color="rgb(255, 181, 0)" />&nbsp; شعب بانک کشاورزی : &nbsp;&nbsp; {filterbranch(subbranchkeshavarzi, "internet-bank")}</td>*/}
+
+                                                    {/*    <td className="">{filterbranchcount(subbranchkeshavarzi, "internet-bank")}</td>*/}
+                                                    {/*    <td className="">{filterbranchreq(subbranchkeshavarzi, "internet-bank")}</td></tr>) : (<div style={{ display: "none" }}></div>)*/}
+
+
+
+                                                    {/*}*/}
+
+
+
+
+
+
+
+
+
+
+
+
+                                                </tbody>
+
+
+
+
+
+                                            </table>
+
+                                        </TableScrollbar>
+
+                                    ) : (<div><ReactLoading type="spinningBubbles" color="white" height={20} width={"20%"} color="rgb(255,255,255)" /></div>)}
+                                </div>
+
+
+
+
+                            </div>
+
                             {/*<GaugeChart id="gauge-chart5"*/}
                             {/*    nrOfLevels={20}*/}
                             {/*    colors={["rgb(0,60,50)", "rgb(0,60,50)", "rgb(0,60,50)", "rgb(0,60,50)", "rgb(0,60,50)", "rgb(0,60,50)", "rgb(0,60,50)", "rgb(0,60,50)", "rgb(0,60,50)", "rgb(0,60,50),rgb(255,225,0)", "rgb(255,230,0)", "rgb(255,235,0)", "rgb(255,240,0)", "rgb(255,245,0)", "rgb(255,250,0)", "rgb(255,255,0)", "rgb(255,255,50)", "rgb(255,255,100)", "rgb(255,255,150)"]}*/}
@@ -2055,7 +2251,7 @@ export function Onlinedashboard() {
 
                             <div className="col-md-12 m-0 bg-light" style={{ fontSize: "15px", fontWeight: "bold" }}>
 
-                                <div className="justify-content-center text-center" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(200,200,200)", color: "rgb(0,80,50)" }}>گزارش عملکرد موبایل بانک پارسیان</div>
+                                <div className="justify-content-center text-center" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(200,200,200)", color: "rgb(0,80,50)" }}>گزارش عملکرد موبایل بانک و اینترنت بانک پارسیان</div>
 
                                 <div style={{ height: "11vh", color: "wheat" }}>
 
@@ -2102,200 +2298,213 @@ export function Onlinedashboard() {
                                     ) : (<div><ReactLoading type="spinningBubbles" color="white" height={20} width={"20%"} color="rgb(255,255,255)" /></div>)}
                                 </div>
                             </div>
-                        </div>
-
-
-                        <div className="col-md-12 mt-2" style={{ textAlign: "center" }}>
-
-                            <div className="col-md-12 m-0 rounded" style={{ backgroundColor: "rgb(250,250,250)" }}>
 
 
 
+                            <div className="row col-md-12 g-0" style={{ fontSize: "22px" }}>
 
 
 
+                                <div className="col-md-12 mt-2" style={{ textAlign: "center" }}>
 
-                                <div className="row d-flex justify-content-around m-0" style={{ maxWidth: "100%", backgroundColor: "rgb(250,250,250)" }}>
+                                    <div className="col-md-12 m-0 rounded" style={{ backgroundColor: "rgb(250,250,250)" }}>
 
 
 
-
-                                    <div className="col-md-12 d-flex justify-content-center shadow border rounded" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px" }}>
+                                        <div className="row d-flex justify-content-around m-0" style={{ maxWidth: "100%", backgroundColor: "rgb(250,250,250)" }}>
 
 
 
 
+                                            <div className="col-md-12 d-flex justify-content-center shadow border rounded" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px" }}>
 
-                                        بار چارت مجموع صدور و ابطال آنلاین روز جاری در ساعات مختلف کاری(کلیه اعداد بر اساس میلیارد تومان می باشند)
+
+
+
+
+                                                بار چارت مجموع صدور و ابطال آنلاین روز جاری در ساعات مختلف کاری(کلیه اعداد بر اساس میلیارد تومان می باشند)
+
+                                            </div>
+
+
+
+
+
+
+                                            <div className="col-md-12 d-flex justify-content-center shadow border rounded" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px", maxWidth: "100%" }}>
+                                                {onlineordershour.length === 0 ? (<p className="col-md-2 pt-5"><ReactLoading type="spinningBubbles" color="blue" height={100} width={"50%"} color="rgb(0,50,60)" /></p>) :
+
+                                                    (
+
+
+                                                        <ResponsiveContainer width="100%" height={230}>
+
+                                                            <BarChart data={onlineordershour} >
+
+                                                                <Bar name="صدور" dataKey="orderUnitSodoor" fill="rgb(0,60,50)" stroke="rgb(0,60,50)" />
+                                                                <Bar name="ابطال" dataKey="orderUnitEbtal" fill="rgb(255,181,0)" stroke="rgb(255,181,0)" />
+                                                                <CartesianGrid stroke="#ccc" />
+                                                                <XAxis dataKey="hour" />
+                                                                <Tooltip
+                                                                    wrapperStyle={{ backgroundColor: "white" }}
+                                                                    labelStyle={{ color: "blue" }}
+                                                                    itemStyle={{ color: "blue" }}
+                                                                    formatter={function (value) {
+                                                                        return ` ${value.toLocaleString()}`;
+                                                                    }}
+                                                                    labelFormatter={function (value) {
+                                                                        return `ساعت: ${value}`;
+                                                                    }}
+                                                                    cursor={{ fill: 'rgb(230,233,232)', opacity: '0.5' }}
+
+
+                                                                />
+
+                                                                <text x={400} y={10} fill="black" textAnchor="middle" dominantBaseline="central" >
+                                                                    {/*<tspan fontSize="16" color="rgb(255,181,50)">* مجموع صدور و ابطال صندوق لوتوس به تفکیک روز *</tspan>*/}
+                                                                </text>
+                                                                <Legend verticalAlign="top" height={30} />
+                                                                <Brush dataKey="hour" height={30} stroke="rgb(72,122,123)" />
+
+                                                                <title />
+
+                                                                <YAxis name="ساعت" type="number" tickFormatter={tick => { return tick.toLocaleString() }} />
+
+                                                            </BarChart>
+
+                                                        </ResponsiveContainer>
+
+
+                                                    )
+
+
+                                                }
+
+                                            </div>
+
+
+                                        </div>
+
+
+
+
+
+
 
                                     </div>
 
+                                </div>
+
+                            </div>
+
+                            <div className="row col-md-12 g-0 p-1" style={{ fontSize: "22px" }}>
+                            <div className="col-md-12" style={{ textAlign: "center" }}>
+                                <div className="col-md-12 m-0 p-0 rounded" style={{ backgroundColor: "rgb(250,250,250)" }}>
 
 
 
 
 
-                                    <div className="col-md-12 d-flex justify-content-center shadow border rounded" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px", maxWidth: "100%" }}>
-                                        {onlineordershour.length === 0 ? (<p className="col-md-2 pt-5"><ReactLoading type="spinningBubbles" color="blue" height={100} width={"50%"} color="rgb(0,50,60)" /></p>) :
-
-                                            (
 
 
-                                                <ResponsiveContainer width="100%" height={230}>
-
-                                                    <BarChart data={onlineordershour} >
-
-                                                        <Bar name="صدور" dataKey="orderUnitSodoor" fill="rgb(0,60,50)" stroke="rgb(0,60,50)" />
-                                                        <Bar name="ابطال" dataKey="orderUnitEbtal" fill="rgb(255,181,0)" stroke="rgb(255,181,0)" />
-                                                        <CartesianGrid stroke="#ccc" />
-                                                        <XAxis dataKey="hour" />
-                                                        <Tooltip
-                                                            wrapperStyle={{ backgroundColor: "white" }}
-                                                            labelStyle={{ color: "blue" }}
-                                                            itemStyle={{ color: "blue" }}
-                                                            formatter={function (value) {
-                                                                return ` ${value.toLocaleString()}`;
-                                                            }}
-                                                            labelFormatter={function (value) {
-                                                                return `ساعت: ${value}`;
-                                                            }}
-                                                            cursor={{ fill: 'rgb(230,233,232)', opacity: '0.5' }}
+                                    <div className="row d-flex justify-content-center mt-2 p-1">
 
 
-                                                        />
-
-                                                        <text x={400} y={10} fill="black" textAnchor="middle" dominantBaseline="central" >
-                                                            {/*<tspan fontSize="16" color="rgb(255,181,50)">* مجموع صدور و ابطال صندوق لوتوس به تفکیک روز *</tspan>*/}
-                                                        </text>
-                                                        <Legend verticalAlign="top" height={30} />
-                                                        <Brush dataKey="hour" height={30} stroke="rgb(72,122,123)" />
-
-                                                        <title />
-
-                                                        <YAxis name="ساعت" type="number" tickFormatter={tick => { return tick.toLocaleString() }} />
-
-                                                    </BarChart>
-
-                                                </ResponsiveContainer>
 
 
-                                            )
+                                        <div className="col-md-12 d-flex justify-content-center shadow rounded rounded" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px" }}>
 
 
-                                        }
 
+
+
+                                            لاین چارت مجموع صدور و ابطال (کلیه اعداد بر اساس میلیارد تومان می باشند)
+
+                                        </div>
+
+
+
+
+
+
+                                        <div className="col-md-12 d-flex justify-content-center shadow border m-0 rounded" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px" }}>
+                                            {activestate === false || sodoor.length === 0 ? (<p className="col-md-2 pt-2"><ReactLoading type="spinningBubbles" color="blue" height={100} width={"50%"} color="rgb(0,50,60)" /></p>) :
+
+                                                (
+
+
+                                                    <ResponsiveContainer width="100%" height={287} >
+
+                                                        <LineChart data={sodoor} backgroundColor="rgb(137,141,141)" >
+
+                                                            <Line name="صدور" dataKey="sumsodoor" fill="rgb(0,60,50)" stroke="rgb(0,60,50)" />
+                                                            <Line name="ابطال" dataKey="sumebtal" fill="rgb(255,181,0)" stroke="rgb(255,181,0)" />
+                                                            <CartesianGrid stroke="#ccc" />
+                                                            <XAxis dataKey="orderdate" />
+                                                            <Tooltip
+                                                                wrapperStyle={{ backgroundColor: "white" }}
+                                                                labelStyle={{ color: "black" }}
+                                                                itemStyle={{ color: "black" }}
+                                                                formatter={function (value) {
+                                                                    return ` ${value.toLocaleString()}`;
+                                                                }}
+                                                                labelFormatter={function (value) {
+                                                                    return `تاریخ: ${value}`;
+                                                                }}
+                                                                cursor={{ fill: 'rgb(230,233,232)', opacity: '0.5' }}
+
+
+                                                            />
+
+                                                            <text x={200} y={10} fill="black" textAnchor="middle" dominantBaseline="central" >
+                                                                {/*<tspan fontSize="16" color="rgb(255,181,50)">* مجموع صدور و ابطال صندوق لوتوس به تفکیک روز *</tspan>*/}
+                                                            </text>
+                                                            <Legend verticalAlign="top" height={30} />
+                                                            <Brush dataKey="orderdate" height={30} stroke="rgb(72,122,123)" />
+
+                                                            <title />
+
+                                                            <YAxis type="number" tickFormatter={tick => { return tick.toLocaleString() }} />
+
+                                                        </LineChart>
+
+                                                    </ResponsiveContainer>
+
+
+                                                )
+
+
+                                            }
+
+                                        </div>
+
+                                        <div className="row d-flex justify-content-start align-items-center shadow border mb-2" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px" }}>
+
+
+
+                                            <div className="col-md-4 mb-2">تاریخ شروع<DatePicker className="pe-2" value={barchartstartdate} onChange={(value) => { setbarchartstartdate(value) }} /></div>
+
+                                            <div className="col-md-4 ps-2 mb-2">تاریخ پایان<DatePicker className=" ps-2" value={barchartenddate} onChange={(value) => { setbarchartenddate(value) }} /></div>
+
+                                            <div className="col-md-4 ps-2 "><button className="col-md-3 btn btn-success ms-1" style={{ width: "auto", height: "30px", fontSize: "14px", backgroundColor: "rgb(0,60,50)" }} onClick={barchartfilter}>فیلتر</button></div>
+
+                                        </div>
                                     </div>
+
 
 
                                 </div>
 
 
 
-                            </div>
-
-                        </div>
-
-
-                        <div className="col-md-12" style={{ textAlign: "center" }}>
-                            <div className="col-md-12 m-0 p-0 rounded" style={{ backgroundColor: "rgb(250,250,250)" }}>
-
-
-
-
-
-
-
-                                <div className="row d-flex justify-content-center mt-2 p-1">
-
-
-
-
-                                    <div className="col-md-12 d-flex justify-content-center shadow rounded rounded" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px" }}>
-
-
-
-
-
-                                        لاین چارت مجموع صدور و ابطال (کلیه اعداد بر اساس میلیارد تومان می باشند)
-
-                                    </div>
-
-
-
-
-
-
-                                    <div className="col-md-12 d-flex justify-content-center shadow border m-0 rounded" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px" }}>
-                                        {activestate === false || sodoor.length === 0 ? (<p className="col-md-2 pt-2"><ReactLoading type="spinningBubbles" color="blue" height={100} width={"50%"} color="rgb(0,50,60)" /></p>) :
-
-                                            (
-
-
-                                                <ResponsiveContainer width="100%" height={287} >
-
-                                                    <LineChart data={sodoor} backgroundColor="rgb(137,141,141)" >
-
-                                                        <Line name="صدور" dataKey="sumsodoor" fill="rgb(0,60,50)" stroke="rgb(0,60,50)" />
-                                                        <Line name="ابطال" dataKey="sumebtal" fill="rgb(255,181,0)" stroke="rgb(255,181,0)" />
-                                                        <CartesianGrid stroke="#ccc" />
-                                                        <XAxis dataKey="orderdate" />
-                                                        <Tooltip
-                                                            wrapperStyle={{ backgroundColor: "white" }}
-                                                            labelStyle={{ color: "black" }}
-                                                            itemStyle={{ color: "black" }}
-                                                            formatter={function (value) {
-                                                                return ` ${value.toLocaleString()}`;
-                                                            }}
-                                                            labelFormatter={function (value) {
-                                                                return `تاریخ: ${value}`;
-                                                            }}
-                                                            cursor={{ fill: 'rgb(230,233,232)', opacity: '0.5' }}
-
-
-                                                        />
-
-                                                        <text x={200} y={10} fill="black" textAnchor="middle" dominantBaseline="central" >
-                                                            {/*<tspan fontSize="16" color="rgb(255,181,50)">* مجموع صدور و ابطال صندوق لوتوس به تفکیک روز *</tspan>*/}
-                                                        </text>
-                                                        <Legend verticalAlign="top" height={30} />
-                                                        <Brush dataKey="orderdate" height={30} stroke="rgb(72,122,123)" />
-
-                                                        <title />
-
-                                                        <YAxis type="number" tickFormatter={tick => { return tick.toLocaleString() }} />
-
-                                                    </LineChart>
-
-                                                </ResponsiveContainer>
-
-
-                                            )
-
-
-                                        }
-
-                                    </div>
-
-                                    <div className="row d-flex justify-content-start align-items-center shadow border mb-2" style={{ backgroundColor: "rgb(250,250,250)", fontSize: "12px" }}>
-
-
-
-                                        <div className="col-md-4 mb-2">تاریخ شروع<DatePicker className="pe-2" value={barchartstartdate} onChange={(value) => { setbarchartstartdate(value) }} /></div>
-
-                                        <div className="col-md-4 ps-2 mb-2">تاریخ پایان<DatePicker className=" ps-2" value={barchartenddate} onChange={(value) => { setbarchartenddate(value) }} /></div>
-
-                                        <div className="col-md-4 ps-2 "><button className="col-md-3 btn btn-success ms-1" style={{ width: "auto", height: "30px", fontSize: "14px", backgroundColor: "rgb(0,60,50)" }} onClick={barchartfilter}>فیلتر</button></div>
-
-                                    </div>
                                 </div>
-
-
-
                             </div>
-
-
-
                         </div>
+
+
+
+
+                        
 
 
 
@@ -2331,6 +2540,8 @@ export function Onlinedashboard() {
 
 
                     </div>
+
+
 
 
 
