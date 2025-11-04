@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Lotus_Dashboard1.Apis.GoldEtemadContext
 {
     public partial class GoldEtemad
     {
+        [Key]
         public int Id { get; set; }
+       
         public long Amount { get; set; }
         public string? CardNumber { get; set; }
         public string? BankAccountId { get; set; }

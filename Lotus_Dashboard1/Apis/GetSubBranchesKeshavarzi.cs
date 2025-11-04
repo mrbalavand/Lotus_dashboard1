@@ -398,15 +398,13 @@ namespace Lotus_Dashboard1.Apis
 
 
 
-                    string query = " select C##MAIN.PBF2_FUND_ORDER.order_date,sum(C##MAIN.PBF2_FUND_ORDER.ORDER_AMOUNT),count(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)," +
-                        " count(distinct C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT) " +
-                        " from C##MAIN.PBF2_FUND_ORDER " +
-                        " where C##MAIN.PBF2_FUND_ORDER.order_date>=:id and C##MAIN.PBF2_FUND_ORDER.order_date<=:id and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2" +
-                        " and C##MAIN.PBF2_FUND_ORDER.is_purchase=1 and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT is not null and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT<>'MBP' and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT<>'giftCard'" +
-                         " and((length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)>=4 and length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)<=5)" +
-                        " or(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%کشاورزی%'  and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%BCP%'))" +
-                        " and C##MAIN.PBF2_FUND_ORDER.fo_status_id=2" +
-                        " group by C##MAIN.PBF2_FUND_ORDER.order_date";
+                    string query = " select C##MAIN.PBF2_FUND_ORDER.order_date,sum(C##MAIN.PBF2_FUND_ORDER.ORDER_AMOUNT),count(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT), "+
+                                   " count(distinct C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT) "+ 
+                                    "  from C##MAIN.PBF2_FUND_ORDER  "+
+                                    "  where C##MAIN.PBF2_FUND_ORDER.order_date>=:id and C##MAIN.PBF2_FUND_ORDER.order_date<=:id and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2 "+
+                                   " and C##MAIN.PBF2_FUND_ORDER.VARIABLE_WAGE=18 "+
+                                     " and C##MAIN.PBF2_FUND_ORDER.fo_status_id=2 "+
+                                     " group by C##MAIN.PBF2_FUND_ORDER.order_date";
 
 
 
@@ -528,15 +526,13 @@ namespace Lotus_Dashboard1.Apis
 
 
 
-                    string query =
-                        " select C##MAIN.NNF3_FUND_ORDER.order_date,sum(C##MAIN.NNF3_FUND_ORDER.ORDER_AMOUNT),count(C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT)," +
-                        " count(distinct C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT) " +
-                        " from C##MAIN.NNF3_FUND_ORDER " +
-                        " where C##MAIN.NNF3_FUND_ORDER.order_date>=:id and C##MAIN.NNF3_FUND_ORDER.order_date<=:id and C##MAIN.NNF3_FUND_ORDER.FO_STATUS_ID=2" +
-                        " and C##MAIN.NNF3_FUND_ORDER.is_purchase=1 and C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT is not null and C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT<>'MBP' and C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT<>'giftCard'" +
-                        " and length(C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT)>=4 and length(C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT)<=5" +
-                        " and C##MAIN.NNF3_FUND_ORDER.fo_status_id=2" +
-                        " group by C##MAIN.NNF3_FUND_ORDER.order_date";
+                    string query = " select C##MAIN.NNF3_FUND_ORDER.order_date,sum(C##MAIN.NNF3_FUND_ORDER.ORDER_AMOUNT),count(C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT), " +
+                                   " count(distinct C##MAIN.NNF3_FUND_ORDER.RECEIPT_COMMENT) " +
+                                    "  from C##MAIN.NNF3_FUND_ORDER  " +
+                                    "  where C##MAIN.NNF3_FUND_ORDER.order_date>=:id and C##MAIN.NNF3_FUND_ORDER.order_date<=:id and C##MAIN.NNF3_FUND_ORDER.FO_STATUS_ID=2 " +
+                                   " and C##MAIN.NNF3_FUND_ORDER.VARIABLE_WAGE=18 " +
+                                     " and C##MAIN.NNF3_FUND_ORDER.fo_status_id=2 " +
+                                     " group by C##MAIN.NNF3_FUND_ORDER.order_date";
 
 
 

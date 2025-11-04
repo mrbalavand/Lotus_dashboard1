@@ -27,7 +27,8 @@ var connectionStringSqlServer = builder.Configuration.GetConnectionString("Lotus
 builder.Services.AddDbContext<LotusibBIContext>(options =>
     options.UseSqlServer(connectionStringSqlServer));
 
-
+builder.Services.AddDbContext<MostOnlineContext>(options =>
+    options.UseSqlServer(connectionStringSqlServer));
 
 // Add services to the container.
 builder.Services.AddTransient<IDW_Services, DW_Services>();

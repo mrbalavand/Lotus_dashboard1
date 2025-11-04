@@ -1,9 +1,14 @@
 ﻿using DataModels;
+using Lotus_Dashboard1.Apis.GoldEtemadContext;
 using Lotus_Dashboard1.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
+using System.Data;
 using System.Data.Common;
+using System.Diagnostics.Metrics;
 using System.Globalization;
 
 namespace Lotus_Dashboard1.Apis
@@ -12,7 +17,12 @@ namespace Lotus_Dashboard1.Apis
     [ApiController]
     public class GetBranches : ControllerBase
     {
+        private readonly LotusibBIContext _lotusibBIContext;
 
+        public GetBranches(LotusibBIContext lotusibBIContext)
+        {
+            _lotusibBIContext = lotusibBIContext;
+        }
         public async Task<JsonResult> GetData(string fundname, string cdate)
         {
 
@@ -108,7 +118,7 @@ namespace Lotus_Dashboard1.Apis
                    " and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1<>'giftCard' and C##MAIN.API_PBF2_FUND_ORDER.ORDERPAYMENTTYPENAME1='حساب بانکي'" +
                    "and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%پارسیان%'  and C##MAIN.API_PBF2_FUND_ORDER.RECEIPTCOMMENT1 like '%BCP%'" +
                    " group by C##MAIN.API_PBF2_FUND_ORDER.creationdate1" +
-                   
+
 
 
                    " union all" +
@@ -265,7 +275,7 @@ namespace Lotus_Dashboard1.Apis
                             return new JsonResult(data);
                         }
 
-                      
+
 
                         return new JsonResult(data);
                     }
@@ -445,12 +455,354 @@ namespace Lotus_Dashboard1.Apis
                             return new JsonResult(data);
                         }
 
-                     
+
                         return new JsonResult(data);
                     }
 
 
                 }
+
+
+                if (fundname == "صندوق طلا" && cdate != null)
+                {
+
+
+
+
+
+                    string connectionstring = "Data Source=192.168.1.131;Initial Catalog=LotusibBI;User ID=balavand;Password=123456;Encrypt=False;Trust Server Certificate=True";
+
+                    
+
+                    var query = $"  select [receiptDate],sum([dbo].[Gold_Etemad].orderAmount) as sumunit," +
+                     $"  count([dbo].[Gold_Etemad].receiptComments) as countrec,count(distinct([dbo].[Gold_Etemad].receiptComments)) as countdins," +
+                     $" 'internet' as RECTYPE from [dbo].[Gold_Etemad] where [dbo].[Gold_Etemad].dsName='11509'" +
+                     $"   and [dbo].[Gold_Etemad].[receiptDate]='{cdate}' and ([dbo].[Gold_Etemad].receiptComments " +
+                     $" like '%پارسیان%' and [dbo].[Gold_Etemad].receiptComments like '%BCP%') group by [receiptDate]";
+
+
+                   
+
+
+
+                    try
+                    {
+
+                        using var connection = new SqlConnection(connectionstring);
+                        await connection.OpenAsync();
+                        var command = new SqlCommand(query, connection);
+
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                data.Add(new BranchesModel()
+                                {
+                                    BranchDate = await reader.IsDBNullAsync(0) ? "0" : (reader.GetString(0)),
+                                    SodoorAmount = await reader.IsDBNullAsync(1) ? 0 : reader.GetInt64(1),
+                                    RequestNumber = await reader.IsDBNullAsync(2) ? 0 : reader.GetInt32(2),
+                                    BranchNumber = await reader.IsDBNullAsync(3) ? 0 : reader.GetInt32(3),
+                                    rectype = await reader.IsDBNullAsync(4) ? "0" : reader.GetString(4),
+
+                                });
+                            }
+                        }
+
+                        await connection.CloseAsync();
+                        
+
+
+
+                    }
+                    catch
+                    {
+                        data.Add(new BranchesModel()
+                        {
+                            
+
+                        });
+                    }
+                    if (data.Count == 0)
+                    {
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "fish"
+                        });
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "internet"
+                        });
+
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "all"
+                        });
+                        return new JsonResult(data);
+                    }
+                    else
+                    {
+                        if (data.Count == 1 && !data.Select(x => x.rectype == "fish").FirstOrDefault())
+                        {
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = "0",
+                                SodoorAmount = 0,
+                                RequestNumber = 0,
+                                BranchNumber = 0,
+                                rectype = "fish"
+                            });
+
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = data.Where(x => x.rectype == "internet").Select(x => x.BranchDate).FirstOrDefault(),
+                                SodoorAmount = data.Where(x => x.rectype == "internet").Sum(x => x.SodoorAmount),
+                                RequestNumber = (int)data.Where(x => x.rectype == "internet").Sum(x => x.RequestNumber),
+                                BranchNumber = data.Where(x => x.rectype == "internet").Sum(x => x.BranchNumber),
+                                rectype = "all"
+
+
+                            });
+                            return new JsonResult(data);
+                        }
+
+                        if (data.Count == 1 && !data.Select(x => x.rectype == "internet").FirstOrDefault())
+                        {
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = "0",
+                                SodoorAmount = 0,
+                                RequestNumber = 0,
+                                BranchNumber = 0,
+                                rectype = "internet"
+                            });
+
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = data.Where(x => x.rectype == "fish").Select(x => x.BranchDate).FirstOrDefault(),
+                                SodoorAmount = data.Where(x => x.rectype == "fish").Sum(x => x.SodoorAmount),
+                                RequestNumber = (int)data.Where(x => x.rectype == "fish").Sum(x => x.RequestNumber),
+                                BranchNumber = data.Where(x => x.rectype == "fish").Sum(x => x.BranchNumber),
+                                rectype = "all"
+
+
+                            });
+                            return new JsonResult(data);
+                        }
+
+
+
+
+
+                        if (data.Count == 2)
+                        {
+
+
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = data.Select(x => x.BranchDate).FirstOrDefault(),
+                                SodoorAmount = data.Sum(x => x.SodoorAmount),
+                                RequestNumber = (int)data.Sum(x => x.RequestNumber),
+                                BranchNumber = data.Sum(x => x.BranchNumber),
+                                rectype = "all"
+
+
+                            });
+                            return new JsonResult(data);
+                        }
+
+
+                        return new JsonResult(data);
+                    }
+
+
+
+
+                }
+
+
+
+
+                if (fundname == "صندوق اعتماد" && cdate != null)
+                {
+
+
+
+
+
+                    string connectionstring = "Data Source=192.168.1.131;Initial Catalog=LotusibBI;User ID=balavand;Password=123456;Encrypt=False;Trust Server Certificate=True";
+
+
+
+                    var query = $"  select [receiptDate],sum([dbo].[Gold_Etemad].orderAmount) as sumunit," +
+                     $"  count([dbo].[Gold_Etemad].receiptComments) as countrec,count(distinct([dbo].[Gold_Etemad].receiptComments)) as countdins," +
+                     $" 'internet' as RECTYPE from [dbo].[Gold_Etemad] where [dbo].[Gold_Etemad].dsName='11315'" +
+                     $"   and [dbo].[Gold_Etemad].[receiptDate]='{cdate}' and ([dbo].[Gold_Etemad].receiptComments " +
+                     $" like '%پارسیان%' and [dbo].[Gold_Etemad].receiptComments like '%BCP%') group by [receiptDate]";
+
+
+
+
+
+
+                    try
+                    {
+
+                        using var connection = new SqlConnection(connectionstring);
+                        await connection.OpenAsync();
+                        var command = new SqlCommand(query, connection);
+
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                data.Add(new BranchesModel()
+                                {
+                                    BranchDate = await reader.IsDBNullAsync(0) ? "0" : (reader.GetString(0)),
+                                    SodoorAmount = await reader.IsDBNullAsync(1) ? 0 : reader.GetInt64(1),
+                                    RequestNumber = await reader.IsDBNullAsync(2) ? 0 : reader.GetInt32(2),
+                                    BranchNumber = await reader.IsDBNullAsync(3) ? 0 : reader.GetInt32(3),
+                                    rectype = await reader.IsDBNullAsync(4) ? "0" : reader.GetString(4),
+
+                                });
+                            }
+                        }
+
+                        await connection.CloseAsync();
+
+
+
+
+                    }
+                    catch
+                    {
+                        data.Add(new BranchesModel()
+                        {
+
+
+                        });
+                    }
+                    if (data.Count == 0)
+                    {
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "fish"
+                        });
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "internet"
+                        });
+
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "all"
+                        });
+                        return new JsonResult(data);
+                    }
+                    else
+                    {
+                        if (data.Count == 1 && !data.Select(x => x.rectype == "fish").FirstOrDefault())
+                        {
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = "0",
+                                SodoorAmount = 0,
+                                RequestNumber = 0,
+                                BranchNumber = 0,
+                                rectype = "fish"
+                            });
+
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = data.Where(x => x.rectype == "internet").Select(x => x.BranchDate).FirstOrDefault(),
+                                SodoorAmount = data.Where(x => x.rectype == "internet").Sum(x => x.SodoorAmount),
+                                RequestNumber = (int)data.Where(x => x.rectype == "internet").Sum(x => x.RequestNumber),
+                                BranchNumber = data.Where(x => x.rectype == "internet").Sum(x => x.BranchNumber),
+                                rectype = "all"
+
+
+                            });
+                            return new JsonResult(data);
+                        }
+
+                        if (data.Count == 1 && !data.Select(x => x.rectype == "internet").FirstOrDefault())
+                        {
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = "0",
+                                SodoorAmount = 0,
+                                RequestNumber = 0,
+                                BranchNumber = 0,
+                                rectype = "internet"
+                            });
+
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = data.Where(x => x.rectype == "fish").Select(x => x.BranchDate).FirstOrDefault(),
+                                SodoorAmount = data.Where(x => x.rectype == "fish").Sum(x => x.SodoorAmount),
+                                RequestNumber = (int)data.Where(x => x.rectype == "fish").Sum(x => x.RequestNumber),
+                                BranchNumber = data.Where(x => x.rectype == "fish").Sum(x => x.BranchNumber),
+                                rectype = "all"
+
+
+                            });
+                            return new JsonResult(data);
+                        }
+
+
+
+
+
+                        if (data.Count == 2)
+                        {
+
+
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = data.Select(x => x.BranchDate).FirstOrDefault(),
+                                SodoorAmount = data.Sum(x => x.SodoorAmount),
+                                RequestNumber = (int)data.Sum(x => x.RequestNumber),
+                                BranchNumber = data.Sum(x => x.BranchNumber),
+                                rectype = "all"
+
+
+                            });
+                            return new JsonResult(data);
+                        }
+
+
+                        return new JsonResult(data);
+                    }
+
+
+
+
+                }
+
+
 
             }
             else if (Convert.ToInt32(cdate.datetonumber()) <= Convert.ToInt32(api_date.datetonumber()))
@@ -468,8 +820,8 @@ namespace Lotus_Dashboard1.Apis
                         " from C##MAIN.PBF2_FUND_ORDER " +
                         " where C##MAIN.PBF2_FUND_ORDER.order_date>=:id and C##MAIN.PBF2_FUND_ORDER.order_date<=:id and C##MAIN.PBF2_FUND_ORDER.FO_STATUS_ID=2" +
                         " and C##MAIN.PBF2_FUND_ORDER.is_purchase=1 and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT is not null and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT<>'MBP' and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT<>'giftCard'" +
-                        " and((length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)>=4 and length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)<=5)"+  
-                        " or(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%پارسیان%'  and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%BCP%'))"+
+                        " and((length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)>=4 and length(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT)<=5)" +
+                        " or(C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%پارسیان%'  and C##MAIN.PBF2_FUND_ORDER.RECEIPT_COMMENT like '%BCP%'))" +
                         " and C##MAIN.PBF2_FUND_ORDER.fo_status_id=2" +
                         " group by C##MAIN.PBF2_FUND_ORDER.order_date";
 
@@ -719,6 +1071,308 @@ namespace Lotus_Dashboard1.Apis
 
                 }
 
+
+
+
+                if (fundname == "صندوق طلا" && cdate != null)
+                {
+
+
+
+
+
+                    string connectionstring = "Data Source=192.168.1.131;Initial Catalog=LotusibBI;User ID=balavand;Password=123456;Encrypt=False;Trust Server Certificate=True";
+
+
+
+                    var query = $"  select [receiptDate],sum([dbo].[Gold_Etemad].orderAmount) as sumunit," +
+                     $"  count([dbo].[Gold_Etemad].receiptComments) as countrec,count(distinct([dbo].[Gold_Etemad].receiptComments)) as countdins," +
+                     $" 'internet' as RECTYPE from [dbo].[Gold_Etemad] where [dbo].[Gold_Etemad].dsName='11509'" +
+                     $"   and [dbo].[Gold_Etemad].[receiptDate]='{cdate}' and ([dbo].[Gold_Etemad].receiptComments " +
+                     $" like '%پارسیان%' and [dbo].[Gold_Etemad].receiptComments like '%BCP%') group by [receiptDate]";
+
+
+
+
+
+
+                    try
+                    {
+
+                        using var connection = new SqlConnection(connectionstring);
+                        await connection.OpenAsync();
+                        var command = new SqlCommand(query, connection);
+
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                data.Add(new BranchesModel()
+                                {
+                                    BranchDate = await reader.IsDBNullAsync(0) ? "0" : (reader.GetString(0)),
+                                    SodoorAmount = await reader.IsDBNullAsync(1) ? 0 : reader.GetInt64(1),
+                                    RequestNumber = await reader.IsDBNullAsync(2) ? 0 : reader.GetInt32(2),
+                                    BranchNumber = await reader.IsDBNullAsync(3) ? 0 : reader.GetInt32(3),
+                                    rectype = await reader.IsDBNullAsync(4) ? "0" : reader.GetString(4),
+
+                                });
+                            }
+                        }
+
+                        await connection.CloseAsync();
+
+
+
+
+                    }
+                    catch
+                    {
+                        data.Add(new BranchesModel()
+                        {
+
+
+                        });
+                    }
+                    if (data.Count == 0)
+                    {
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "fish"
+                        });
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "internet"
+                        });
+
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "all"
+                        });
+                        return new JsonResult(data);
+                    }
+                    else
+                    {
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = data.Select(x => x.BranchDate).FirstOrDefault(),
+                            SodoorAmount = data.Sum(x => x.SodoorAmount),
+                            RequestNumber = (int)data.Sum(x => x.RequestNumber),
+                            BranchNumber = data.Sum(x => x.BranchNumber),
+                            rectype = "all"
+
+
+                        });
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "fish"
+                        });
+
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "internet"
+                        });
+
+
+                        return new JsonResult(data);
+                    }
+
+
+
+
+                }
+
+
+
+
+                if (fundname == "صندوق اعتماد" && cdate != null)
+                {
+
+
+
+
+
+                    string connectionstring = "Data Source=192.168.1.131;Initial Catalog=LotusibBI;User ID=balavand;Password=123456;Encrypt=False;Trust Server Certificate=True";
+
+
+
+                    var query = $"  select [receiptDate],sum([dbo].[Gold_Etemad].orderAmount) as sumunit," +
+                     $"  count([dbo].[Gold_Etemad].receiptComments) as countrec,count(distinct([dbo].[Gold_Etemad].receiptComments)) as countdins," +
+                     $" 'internet' as RECTYPE from [dbo].[Gold_Etemad] where [dbo].[Gold_Etemad].dsName='11315'" +
+                     $"   and [dbo].[Gold_Etemad].[receiptDate]='{cdate}' and ([dbo].[Gold_Etemad].receiptComments " +
+                     $" like '%پارسیان%' and [dbo].[Gold_Etemad].receiptComments like '%BCP%') group by [receiptDate]";
+
+
+
+
+
+
+                    try
+                    {
+
+                        using var connection = new SqlConnection(connectionstring);
+                        await connection.OpenAsync();
+                        var command = new SqlCommand(query, connection);
+
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                data.Add(new BranchesModel()
+                                {
+                                    BranchDate = await reader.IsDBNullAsync(0) ? "0" : (reader.GetString(0)),
+                                    SodoorAmount = await reader.IsDBNullAsync(1) ? 0 : reader.GetInt64(1),
+                                    RequestNumber = await reader.IsDBNullAsync(2) ? 0 : reader.GetInt32(2),
+                                    BranchNumber = await reader.IsDBNullAsync(3) ? 0 : reader.GetInt32(3),
+                                    rectype = await reader.IsDBNullAsync(4) ? "0" : reader.GetString(4),
+
+                                });
+                            }
+                        }
+
+                        await connection.CloseAsync();
+
+
+
+
+                    }
+                    catch
+                    {
+                        data.Add(new BranchesModel()
+                        {
+
+
+                        });
+                    }
+                    if (data.Count == 0)
+                    {
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "fish"
+                        });
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "internet"
+                        });
+
+                        data.Add(new BranchesModel()
+                        {
+                            BranchDate = "0",
+                            SodoorAmount = 0,
+                            RequestNumber = 0,
+                            BranchNumber = 0,
+                            rectype = "all"
+                        });
+                        return new JsonResult(data);
+                    }
+                    else
+                    {
+                        if (data.Count == 1 && !data.Select(x => x.rectype == "fish").FirstOrDefault())
+                        {
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = "0",
+                                SodoorAmount = 0,
+                                RequestNumber = 0,
+                                BranchNumber = 0,
+                                rectype = "fish"
+                            });
+
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = data.Where(x => x.rectype == "internet").Select(x => x.BranchDate).FirstOrDefault(),
+                                SodoorAmount = data.Where(x => x.rectype == "internet").Sum(x => x.SodoorAmount),
+                                RequestNumber = (int)data.Where(x => x.rectype == "internet").Sum(x => x.RequestNumber),
+                                BranchNumber = data.Where(x => x.rectype == "internet").Sum(x => x.BranchNumber),
+                                rectype = "all"
+
+
+                            });
+                            return new JsonResult(data);
+                        }
+
+                        if (data.Count == 1 && !data.Select(x => x.rectype == "internet").FirstOrDefault())
+                        {
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = "0",
+                                SodoorAmount = 0,
+                                RequestNumber = 0,
+                                BranchNumber = 0,
+                                rectype = "internet"
+                            });
+
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = data.Where(x => x.rectype == "fish").Select(x => x.BranchDate).FirstOrDefault(),
+                                SodoorAmount = data.Where(x => x.rectype == "fish").Sum(x => x.SodoorAmount),
+                                RequestNumber = (int)data.Where(x => x.rectype == "fish").Sum(x => x.RequestNumber),
+                                BranchNumber = data.Where(x => x.rectype == "fish").Sum(x => x.BranchNumber),
+                                rectype = "all"
+
+
+                            });
+                            return new JsonResult(data);
+                        }
+
+
+
+
+
+                        if (data.Count == 2)
+                        {
+
+
+                            data.Add(new BranchesModel()
+                            {
+                                BranchDate = data.Select(x => x.BranchDate).FirstOrDefault(),
+                                SodoorAmount = data.Sum(x => x.SodoorAmount),
+                                RequestNumber = (int)data.Sum(x => x.RequestNumber),
+                                BranchNumber = data.Sum(x => x.BranchNumber),
+                                rectype = "all"
+
+
+                            });
+                            return new JsonResult(data);
+                        }
+
+
+                        return new JsonResult(data);
+                    }
+
+
+
+
+                }
+
+
                 data.Add(new BranchesModel()
                 {
                     BranchDate = "0",
@@ -745,14 +1399,14 @@ namespace Lotus_Dashboard1.Apis
                     BranchNumber = 0,
                     rectype = "all"
                 });
-       
+
                 return new JsonResult(data);
 
             }
 
 
-           
-            
+
+
 
 
             data.Add(new BranchesModel()
@@ -785,5 +1439,5 @@ namespace Lotus_Dashboard1.Apis
         }
     }
 }
-    
+
 

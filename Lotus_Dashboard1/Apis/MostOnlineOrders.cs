@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
 using System.Data.Common;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
@@ -19,9 +20,11 @@ namespace Lotus_Dashboard1.Apis
     {
 
         private readonly LotusibBIContext _lotusibBIContext;
-        public MostOnlineOrders(LotusibBIContext lotusibBIContext)
+        private readonly MostOnlineContext _mostOnlineContext;
+        public MostOnlineOrders(LotusibBIContext lotusibBIContext, [Optional] MostOnlineContext mostOnlineContext)
         {
             _lotusibBIContext = lotusibBIContext;
+            _mostOnlineContext = mostOnlineContext;
         }
         public async Task<JsonResult> GetData(string fundname, string cdate)
         {
@@ -502,80 +505,79 @@ namespace Lotus_Dashboard1.Apis
 
                     }
 
-
-                    var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
-                                       join tcustomer in _lotusibBIContext.TCustomers
-                                       on goldetemad.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
-                                       from j in jointable.DefaultIfEmpty()
-                                       where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
-                                       select new
-                                       {
-                                           NationalCode = goldetemad.NationalCode,
-                                           CustomerName = goldetemad.NationalCode.Length<=10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
-                                           FundUnit = goldetemad.Amount,
-                                           CustomerType = goldetemad.NationalCode.Length<=10 ? ("حقیقی") : ("حقوقی"),
-                                           OrderType = "صدور",
-                                       }).ToListAsync();
-
-
-                    foreach (var model in data1)
+                    try
                     {
-                        data10.Add(new MostOnlineOrdersModel()
+                        var data1 = await _mostOnlineContext.mostonline.FromSqlRaw($"exec find_customers_gold_etemad '{cdate}','{fundname}'").ToListAsync();
+                        foreach (var model in data1)
                         {
+                            data30.Add(new MostOnlineOrdersModel()
+                            {
 
-                            NationalCode = model.NationalCode,
-                            CustomerName = model.CustomerName,
-                            FundUnit = model.FundUnit / 10,
-                            CustomerType = model.CustomerType,
-                            OrderType = model.OrderType,
+                                NationalCode = model.NationalCode,
+                                CustomerName = model.CustomerName,
+                                FundUnit = model.FundUnit,
+                                CustomerType = model.CustomerType,
+                                OrderType = model.OrderType,
 
-                        });
+                            });
 
+                        }
                     }
-                    data30.AddRange(data10.OrderByDescending(x => x.FundUnit).Take(50));
-
-
-
-
-                    var data2 = await (from RevokeQueue in _lotusibBIContext.RevokeQueues
-                                       join tcustomer in _lotusibBIContext.TCustomers
-                                       on RevokeQueue.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
-                                       from j in jointable.DefaultIfEmpty()
-                                       where RevokeQueue.OrderDate == cdate && RevokeQueue.DsName == fundname
-                                       select new
-                                       {
-                                           NationalCode = RevokeQueue.NationalCode,
-                                           CustomerName = RevokeQueue.NationalCode.Length<=10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
-                                           FundUnit = RevokeQueue.FundUnit * 100000,
-                                           CustomerType = RevokeQueue.NationalCode.Length <= 10 ? ("حقیقی") : ("حقوقی"),
-                                           OrderType = "ابطال",
-                                       }).ToListAsync();
-
-
-
-
-                    foreach (var model in data2)
+                    catch (Exception)
                     {
-                        data20.Add(new MostOnlineOrdersModel()
-                        {
 
-                            NationalCode = model.NationalCode,
-                            CustomerName = model.CustomerName,
-                            FundUnit = Convert.ToInt64(model.FundUnit / 10),
-                            CustomerType = model.CustomerType,
-                            OrderType = model.OrderType,
-
-                        });
-
-                        
-
+                        throw;
                     }
 
-                    data40.AddRange(data20.OrderByDescending(x => x.FundUnit).Take(50));
 
-                    
 
-                    
+                    //var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
+                    //                   join tcustomer in _lotusibBIContext.TCustomers
+                    //                   on goldetemad.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
+                    //                   from j in jointable.DefaultIfEmpty()
+                    //                   where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
+                    //                   select new
+                    //                   {
+                    //                       NationalCode = goldetemad.NationalCode,
+                    //                       CustomerName = goldetemad.NationalCode.Length<=10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                    //                       FundUnit = goldetemad.Amount,
+                    //                       CustomerType = goldetemad.NationalCode.Length<=10 ? ("حقیقی") : ("حقوقی"),
+                    //                       OrderType = "صدور",
+                    //                   }).ToListAsync();
+
+
+
+                    //data30.AddRange(data10.OrderByDescending(x => x.FundUnit).Take(50));
+
+
+                    try
+                    {
+
+                        var data2 = await _mostOnlineContext.mostonline.FromSqlRaw($"exec find_customers_Revoke_gold_etemad '{cdate}',{fundname}").ToListAsync();
+                        foreach (var model in data2)
+                        {
+                            data40.Add(new MostOnlineOrdersModel()
+                            {
+
+                                NationalCode = model.NationalCode,
+                                CustomerName = model.CustomerName,
+                                FundUnit = Convert.ToInt64(model.FundUnit)/10,
+                                CustomerType = model.CustomerType,
+                                OrderType = model.OrderType,
+
+                            });
+
+
+
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
+
+
 
 
                     data30.AddRange(data40);
@@ -967,78 +969,77 @@ namespace Lotus_Dashboard1.Apis
 
                     }
 
-
-                    var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
-                                       join tcustomer in _lotusibBIContext.TCustomers
-                                       on goldetemad.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
-                                       from j in jointable.DefaultIfEmpty()
-                                       where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
-                                       select new
-                                       {
-                                           NationalCode = goldetemad.NationalCode,
-                                           CustomerName = goldetemad.NationalCode.Length <= 10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
-                                           FundUnit = goldetemad.Amount,
-                                           CustomerType = goldetemad.NationalCode.Length <= 10 ? ("حقیقی") : ("حقوقی"),
-                                           OrderType = "صدور",
-                                       }).ToListAsync();
-
-
-                    foreach (var model in data1)
+                    try
                     {
-                        data10.Add(new MostOnlineOrdersModel()
+                        var data1 = await _mostOnlineContext.mostonline.FromSqlRaw($"exec find_customers_gold_etemad '{cdate}','11509'").ToListAsync();
+                        foreach (var model in data1)
                         {
+                            data30.Add(new MostOnlineOrdersModel()
+                            {
 
-                            NationalCode = model.NationalCode,
-                            CustomerName = model.CustomerName,
-                            FundUnit = model.FundUnit / 10,
-                            CustomerType = model.CustomerType,
-                            OrderType = model.OrderType,
+                                NationalCode = model.NationalCode,
+                                CustomerName = model.CustomerName,
+                                FundUnit = model.FundUnit,
+                                CustomerType = model.CustomerType,
+                                OrderType = model.OrderType,
 
-                        });
+                            });
 
+                        }
                     }
-                    data30.AddRange(data10.OrderByDescending(x => x.FundUnit).Take(50));
-
-
-
-
-                    var data2 = await (from RevokeQueue in _lotusibBIContext.RevokeQueues
-                                       join tcustomer in _lotusibBIContext.TCustomers
-                                       on RevokeQueue.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
-                                       from j in jointable.DefaultIfEmpty()
-                                       where RevokeQueue.OrderDate == cdate && RevokeQueue.DsName == fundname
-                                       select new
-                                       {
-                                           NationalCode = RevokeQueue.NationalCode,
-                                           CustomerName = RevokeQueue.NationalCode.Length <= 10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
-                                           FundUnit = RevokeQueue.FundUnit * 100000,
-                                           CustomerType = RevokeQueue.NationalCode.Length <= 10 ? ("حقیقی") : ("حقوقی"),
-                                           OrderType = "ابطال",
-                                       }).ToListAsync();
-
-
-
-
-                    foreach (var model in data2)
+                    catch (Exception)
                     {
-                        data20.Add(new MostOnlineOrdersModel()
-                        {
 
-                            NationalCode = model.NationalCode,
-                            CustomerName = model.CustomerName,
-                            FundUnit = Convert.ToInt64(model.FundUnit / 10),
-                            CustomerType = model.CustomerType,
-                            OrderType = model.OrderType,
-
-                        });
-
-
-
+                        throw;
                     }
 
-                    data40.AddRange(data20.OrderByDescending(x => x.FundUnit).Take(50));
 
 
+                    //var data1 = await (from goldetemad in _lotusibBIContext.GoldEtemads
+                    //                   join tcustomer in _lotusibBIContext.TCustomers
+                    //                   on goldetemad.NationalCode equals EF.Functions.Collate(tcustomer.NationalCode, "Persian_100_CI_AI_SC_UTF8") into jointable
+                    //                   from j in jointable.DefaultIfEmpty()
+                    //                   where goldetemad.ReceiptDate == cdate && goldetemad.DsName == fundname
+                    //                   select new
+                    //                   {
+                    //                       NationalCode = goldetemad.NationalCode,
+                    //                       CustomerName = goldetemad.NationalCode.Length<=10 ? (j.FirstName + " " + j.LastName) : (j.CompanyName),
+                    //                       FundUnit = goldetemad.Amount,
+                    //                       CustomerType = goldetemad.NationalCode.Length<=10 ? ("حقیقی") : ("حقوقی"),
+                    //                       OrderType = "صدور",
+                    //                   }).ToListAsync();
+
+
+
+                    //data30.AddRange(data10.OrderByDescending(x => x.FundUnit).Take(50));
+
+
+                    try
+                    {
+
+                        var data2 = await _mostOnlineContext.mostonline.FromSqlRaw($"exec find_customers_Revoke_gold_etemad '{cdate}','11509'").ToListAsync();
+                        foreach (var model in data2)
+                        {
+                            data40.Add(new MostOnlineOrdersModel()
+                            {
+
+                                NationalCode = model.NationalCode,
+                                CustomerName = model.CustomerName,
+                                FundUnit = Convert.ToInt64(model.FundUnit),
+                                CustomerType = model.CustomerType,
+                                OrderType = model.OrderType,
+
+                            });
+
+
+
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
 
 
 

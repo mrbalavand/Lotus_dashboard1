@@ -294,6 +294,7 @@ namespace Lotus_Dashboard1.Apis.GoldEtemadContext
             });
 
             OnModelCreatingPartial(modelBuilder);
+           
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

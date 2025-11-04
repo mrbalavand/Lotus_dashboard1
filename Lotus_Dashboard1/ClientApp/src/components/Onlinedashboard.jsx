@@ -923,16 +923,18 @@ export function Onlinedashboard() {
 
 
     function filterbranch(item, type) {
+        try {
+            let fish = item.filter(item1 => item1.rectype === type)
 
-        let fish = item.filter(item1 => item1.rectype === type)
-
-        if (fish.length > 0) {
-            return commafy((fish[0].sodoorAmount) / 10)
-        }
-        else {
+            if (fish.length > 0) {
+                return commafy((fish[0].sodoorAmount) / 10)
+            }
+        } catch (e) {
             return 0
         }
 
+       
+      
 
 
     }
@@ -940,14 +942,19 @@ export function Onlinedashboard() {
 
     function filterbranchcount(item, type) {
 
-        let fish = item.filter(item1 => item1.rectype === type)
+        try {
+            let fish = item.filter(item1 => item1.rectype === type)
 
-        if (fish.length > 0) {
-            return commafy((fish[0].requestNumber))
-        }
-        else {
+            if (fish.length > 0) {
+                return commafy((fish[0].requestNumber))
+            }
+
+        } catch (e) {
             return 0
         }
+        
+       
+      
 
 
     }
@@ -955,14 +962,18 @@ export function Onlinedashboard() {
 
     function filterbranchreq(item, type) {
 
-        let fish = item.filter(item1 => item1.rectype === type)
+        try {
 
-        if (fish.length > 0) {
-            return commafy((fish[0].branchNumber))
-        }
-        else {
+            let fish = item.filter(item1 => item1.rectype === type)
+
+            if (fish.length > 0) {
+                return commafy((fish[0].branchNumber))
+            }
+        } catch (e) {
             return 0
         }
+
+     
 
 
 
@@ -2152,7 +2163,7 @@ export function Onlinedashboard() {
 
                                 <div className="justify-content-center text-center" style={{ fontSize: "16px", fontWeight: "bold", backgroundColor: "rgb(200,200,200)", color: "rgb(0,80,50)" }}>گزارش عملکرد شعب بانک کشاورزی</div>
 
-                                <div style={{ height: !opentable && opentable1 ? ("20vh") : opentable && !opentable1 ? ("20vh") : opentable && opentable1 ? ("25vh") : ("10vh") }}>
+                                <div style={{ height: !opentable && opentable1 ? ("25vh") : opentable && !opentable1 ? ("25vh") : opentable && opentable1 ? ("25vh") : ("12vh") }}>
 
                                     {branchesvalkeshavarzi === true || branchkeshavarzi.length !== 0 ? (
                                         <TableScrollbar>
